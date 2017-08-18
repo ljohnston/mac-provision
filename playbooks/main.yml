@@ -1,0 +1,5 @@
+- name: Provision MacBook
+  hosts: macbook
+  connection: local
+  roles:
+    - base

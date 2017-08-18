@@ -1,0 +1,55 @@
+---
+- name: Install wget
+  homebrew: name=wget state=present
+
+- name: Install the_silver_searcher
+  homebrew: name=the_silver_searcher state=present
+
+- name: Install controlplane
+  homebrew_cask: name=controlplane state=present
+
+- name: Install google-chrome
+  homebrew_cask: name=google-chrome state=present
+
+- name: Install iterm2
+  homebrew_cask: name=iterm2 state=present
+
+- name: Install macvim
+  homebrew_cask: name=macvim state=present
+
+- name: Install spotify
+  homebrew_cask: name=spotify state=present
+
+- name: Install vagrant
+  homebrew_cask: name=vagrant state=present
+
+- name: Install virtualbox
+  homebrew_cask: name=virtualbox state=present
+
+- name: .bashrc symlink
+  file: 
+    src: ./provision/dotfiles/.bashrc
+    dest: ~/.bashrc
+    state: link
+
+- name: .profile symlink
+  file: 
+    src: ./provision/dotfiles/.profile
+    dest: ~/.profile
+    state: link
+
+- name: Install vim config
+  git: 	
+    repo: 'git@github.com:ljohnston/vim.git' 
+    dest: '~/.vim'
+
+- name: Configure vim
+  command: ~/.vim/bin/setup install
+  args:
+    creates: ~/.vim/bundle
+
+- name: VimWiki symlink
+  file: 
+    src: ~/Google Drive/vimwiki
+    dest: ~/vimwiki
+    state: link
