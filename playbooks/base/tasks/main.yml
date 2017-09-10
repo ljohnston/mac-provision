@@ -5,6 +5,9 @@
 - name: Install the_silver_searcher
   homebrew: name=the_silver_searcher state=present
 
+- name: Install plain-clip
+  homebrew_cask: name=plain-clip state=present
+
 - name: Install controlplane
   homebrew_cask: name=controlplane state=present
 
