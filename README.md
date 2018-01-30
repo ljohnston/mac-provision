@@ -31,6 +31,10 @@ $ ansible-playbook -i playbooks/inventory playbooks/main.yml
 - Map select pane left to Cmd-Shift-h
 - Map select pane right to Cmd-Shift-l
 
+##### Opera
+
+See comments in the .vim README for info.
+
 ## UPDATES
 
 To modify configuration:
