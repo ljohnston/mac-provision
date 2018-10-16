@@ -77,6 +77,10 @@ if [ -n "${VIM}" ]; then
 elif [ -f ~/.bash-git-prompt/gitprompt.sh ]; then
     GIT_PROMPT_THEME=Solarized
     source ~/.bash-git-prompt/gitprompt.sh
+elif [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+    __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
+    GIT_PROMPT_THEME=Solarized
+    source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
 else
     bash_prompt_command() {
     
@@ -167,7 +171,7 @@ fi
 # - Unlimited (or effectively unlimited) history.
 # - History from current shell _not_ available to concurrently running shells.
 # - History from the current shell available to new shells started while the
-# current shell is still active.
+# current shell is still active (and after it's closed obviously).
 #
 # Got most of this from:
 #
@@ -182,6 +186,10 @@ shopt -s histappend
 HISTSIZE=10000
 HISTFILESIZE=100000
 HISTCONTROL=ignorespace:ignoredups
+
+# Don't add history commands to the history. This is especially important for
+# csshX as it adds lots of 'history -d ...' lines that we really don't want.
+HISTIGNORE='history*'
 
 history() {
   _bash_history_sync
