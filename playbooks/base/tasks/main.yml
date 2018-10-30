@@ -1,58 +1,109 @@
 ---
-- name: Install wget
-  homebrew: name=wget state=present
+- name: 'install wget'
+  homebrew: 
+    name: 'wget' 
+    state: 'present'
 
-- name: Install the_silver_searcher
-  homebrew: name=the_silver_searcher state=present
+- name: 'install the_silver_searcher'
+  homebrew: 
+    name: 'the_silver_searcher' 
+    state: 'present'
 
-- name: Install plain-clip
-  homebrew_cask: name=plain-clip state=present
+#
+# NOTE: The 'homebrew_cask' module fails if an app has been installed externally.
+# This includes an app that was orginally installed via the module, but then
+# updates itself (e.g. iterm2, macvim, etc.). The 'accept_external_apps'
+# parameter can be used to avoid the failures.
+#
 
-- name: Install controlplane
-  homebrew_cask: name=controlplane state=present
+- name: 'install plain-clip'
+  homebrew_cask: 
+    name: 'plain-clip'
+    state: 'present'
+    accept_external_apps: true
 
-- name: Install google-chrome
-  homebrew_cask: name=google-chrome state=present
+- name: 'install controlplane'
+  homebrew_cask: 
+    name: 'controlplane' 
+    state: 'present'
+    accept_external_apps: true
 
-- name: Install iterm2
-  homebrew_cask: name=iterm2 state=present
+- name: 'install google-chrome'
+  homebrew_cask: 
+    name: 'google-chrome' 
+    state: 'present'
+    accept_external_apps: true
 
-- name: Install macvim
-  homebrew_cask: name=macvim state=present
+- name: 'install iterm2'
+  homebrew_cask: 
+    name: 'iterm2' 
+    state: 'present'
+    accept_external_apps: true
 
-- name: Install spotify
-  homebrew_cask: name=spotify state=present
+- name: 'install macvim'
+  homebrew_cask: 
+    name: 'macvim' 
+    state: 'present'
+    accept_external_apps: true
 
-- name: Install vagrant
-  homebrew_cask: name=vagrant state=present
+# Spotify {{
+# For some reason, Spotify takes _way_ too long to install, so we'll use
+# this 'stat' trick to bypass the install if the app already exists.
+- name: 'look for spotify'
+  stat: 
+    path: '/Applications/Spotify.app'
+  register: spotify_app
 
-- name: Install virtualbox
-  homebrew_cask: name=virtualbox state=present
+- name: 'install spotify'
+  homebrew_cask: 
+    name: 'spotify' 
+    state: 'present'
+    accept_external_apps: true
+  when: not spotify_app.stat.exists
+# }}
 
-- name: .bashrc symlink
+- name: 'install vagrant'
+  homebrew_cask: 
+    name: 'vagrant' 
+    state: 'present'
+    accept_external_apps: true
+
+- name: 'install virtualbox'
+  homebrew_cask: 
+    name: 'virtualbox' 
+    state: 'present'
+    accept_external_apps: true
+
+- name: 'install powerline-go'
+  get_url: 
+    url: 'https://github.com/justjanne/powerline-go/releases/download/v1.11.0/powerline-go-darwin-amd64'
+    dest: '/usr/local/bin/powerline-go'
+    mode: '0755'
+
+- name: '.bashrc symlink'
   file: 
-    src: ./provision/dotfiles/.bashrc
-    dest: ~/.bashrc
-    state: link
+    src: '{{ playbook_dir }}/../dotfiles/.bashrc'
+    dest: '~/.bashrc'
+    state: 'link'
 
-- name: .profile symlink
+- name: '.profile symlink'
   file: 
-    src: ./provision/dotfiles/.profile
-    dest: ~/.profile
-    state: link
+    src: '{{ playbook_dir }}/../dotfiles/.profile'
+    dest: '~/.profile'
+    state: 'link'
 
-- name: Install vim config
+- name: 'install vim config'
   git: 	
     repo: 'git@github.com:ljohnston/vim.git' 
     dest: '~/.vim'
 
-- name: Configure vim
-  command: ~/.vim/bin/setup install
+- name: 'configure vim'
+  command: '~/.vim/bin/setup install'
   args:
-    creates: ~/.vim/bundle
+    creates: '~/.vim/bundle'
 
-- name: VimWiki symlink
+- name: 'vimwiki symlink'
   file: 
-    src: ~/Google Drive/vimwiki
-    dest: ~/vimwiki
-    state: link
+    src: '~/Google Drive/vimwiki'
+    dest: '~/vimwiki'
+    state: 'link'

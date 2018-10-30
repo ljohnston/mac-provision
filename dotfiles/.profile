@@ -36,6 +36,21 @@ if [[ $OSTYPE == *darwin* ]]; then
     fi
 fi
 # }}}
+
+# Tool environments {{{
+
+# These must come _after_ brew PATH manipulation.
+
+which -s rbenv && eval "$(rbenv init -)"
+which -s pyenv && eval "$(pyenv init -)"
+which -s jenv && eval "$(jenv init -)"
+
+# Not using this (and it slows down my shell startups, so we'll comment it out.
+# At the very least, this should be a .local thing.
+# export NVM_DIR="$HOME/.nvm"
+# . "/usr/local/opt/nvm/nvm.sh"
+
+# }}}
  
 # etc {{{
 
