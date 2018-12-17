@@ -75,21 +75,34 @@ fi
 if [ -n "${VIM}" ]; then
     # We're in a VIM shell (i.e. :shell).
     :
-# elif [ -f ~/.bash-git-prompt/gitprompt.sh ]; then
-#     GIT_PROMPT_THEME=Solarized
-#     source ~/.bash-git-prompt/gitprompt.sh
-# elif [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
-#     __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
-#     GIT_PROMPT_THEME=Solarized
-#     source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
+
 elif which powerline-go >/dev/null; then
+
     function _update_ps1() {
-        PS1="$(powerline-go -numeric-exit-codes -error $? -colorize-hostname | sed 's/\s\+$/\ /')"
+        #
+        # NOTES
+        #   - The default modules are:
+        #   nix-shell,venv,user,host,ssh,cwd,perms,git,hg,jobs,exit,root,vgo
+        #   - The default theme is 'default' (dark). For dark screen
+        #   backgroungs, might want to try 'low-contrast'
+        #   - The 'sed ...' here removes the " $ " from the first prompt line
+        #   (we want '-newline' to actually put the prompt on a newline).
+        PS1="$(powerline-go -numeric-exit-codes -error $? -colorize-hostname -newline |sed 's/ \\\$ //')"
     }
 
     if [ "$TERM" != "linux" ]; then
         PROMPT_COMMAND="_update_ps1;$PROMPT_COMMAND"
     fi
+
+elif [ -f ~/.bash-git-prompt/gitprompt.sh ]; then
+    GIT_PROMPT_THEME=Solarized
+    source ~/.bash-git-prompt/gitprompt.sh
+
+elif [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+    __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
+    GIT_PROMPT_THEME=Solarized
+    source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
+
 else
     bash_prompt_command() {
     
