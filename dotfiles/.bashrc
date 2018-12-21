@@ -84,10 +84,29 @@ elif which powerline-go >/dev/null; then
         #   - The default modules are:
         #   nix-shell,venv,user,host,ssh,cwd,perms,git,hg,jobs,exit,root,vgo
         #   - The default theme is 'default' (dark). For dark screen
-        #   backgroungs, might want to try 'low-contrast'
-        #   - The 'sed ...' here removes the " $ " from the first prompt line
-        #   (we want '-newline' to actually put the prompt on a newline).
-        PS1="$(powerline-go -numeric-exit-codes -error $? -colorize-hostname -newline |sed 's/ \\\$ //')"
+        #   backgrounds, might want to try 'low-contrast'
+        #   - The '-newline' option is good so that command input isn't
+        #   constantly jumping around as the length of the prompt grows and
+        #   shrinks. The implementation isn't awesome, however. Specifically:
+        #       - The '$' in the prompt now shows up twice. Once at the end of
+        #       the "powerline" and again on the newline. No reason for it to
+        #       be in the "powerline" itself.
+        #       - The newline, in addition to having the '$', also has the '>'
+        #       (as a font symbol) following the '$'. There's no need for that,
+        #       but it's actually annoying when it come to copying and pasting
+        #       commands (e.g. into slack) as it only shows up as an odd
+        #       looking artifact.
+        #   I'll handle this specifically, by not using '-newline' option and
+        #   then sed'ing the prompt to remove the '$' and insert it back after
+        #   a newline.
+        #
+
+        PS1="$(powerline-go \
+               -modules nix-shell,venv,ssh,cwd,perms,git,hg,jobs,exit,root,vgo \
+               -numeric-exit-codes \
+               -error $? \
+               |sed -E 's/ \\\$ (.*)$/\1\\n$ /' \
+            )"
     }
 
     if [ "$TERM" != "linux" ]; then
