@@ -40,6 +40,56 @@ if which vagrant >> /dev/null; then
 fi
 # }}}
 
+# History {{{
+
+#
+# Intent here is: 
+# - Unlimited (or effectively unlimited) history.
+# - History from current shell _not_ available to concurrently running shells.
+# - History from the current shell available to new shells started while the
+# current shell is still active (and after it's closed obviously).
+#
+# Got most of this from:
+#
+# http://unix.stackexchange.com/questions/1288/preserve-bash-history-in-multiple-terminal-windows
+#
+# Note that as the above post mentions, there can be issues with referencing
+# commands by number in this scheme.
+#
+
+# NOTE!!! Because we're messing with the prompt here, this needs to come before
+# the visual prompt modifications we're making (one observed issue was
+# powerline-go never showing any errors becuase)
+
+shopt -s histappend
+
+HISTSIZE=10000
+HISTFILESIZE=100000
+HISTCONTROL=ignorespace:ignoredups
+
+# Don't add history commands to the history. This is especially important for
+# csshX as it adds lots of 'history -d ...' lines that we really don't want.
+HISTIGNORE='history*'
+
+history() {
+  _bash_history_sync
+  builtin history "$@"
+}
+
+_bash_history_sync() {
+  # Append session history to history file.
+  builtin history -a            
+
+  # Resetting HISTFILESIZE will force history file to be truncated to the
+  # specified size.  Without this, file will only be truncated when the shell
+  # is closed.
+  HISTFILESIZE=$HISTFILESIZE    
+}
+
+PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
+
+# }}}
+
 # Prompt {{{
 #
 # We'll use bash-git-prompt (https://github.com/magicmonty/bash-git-prompt) if
@@ -100,10 +150,14 @@ elif which powerline-go >/dev/null; then
         #   then sed'ing the prompt to remove the '$' and insert it back after
         #   a newline.
         #
+        #   I've since found that it's the "root" module that controls this
+        #   behavior. If we remote it, with -newline, things are much better.
+        #   However, there's still the > symbol in front of the $ on the
+        #   newline. I think I like my sed option better.
+        #
 
         PS1="$(powerline-go \
                -modules nix-shell,venv,ssh,cwd,perms,git,hg,jobs,exit,root,vgo \
-               -numeric-exit-codes \
                -error $? \
                |sed -E 's/ \\\$ (.*)$/\1\\n$ /' \
             )"
@@ -204,48 +258,6 @@ else
       unset bash_prompt
     fi
 fi
-
-# }}}
-
-# History {{{
-# Intent here is: 
-# - Unlimited (or effectively unlimited) history.
-# - History from current shell _not_ available to concurrently running shells.
-# - History from the current shell available to new shells started while the
-# current shell is still active (and after it's closed obviously).
-#
-# Got most of this from:
-#
-# http://unix.stackexchange.com/questions/1288/preserve-bash-history-in-multiple-terminal-windows
-#
-# Note that as the above post mentions, there can be issues with referencing
-# commands by number in this scheme.
-#
-
-shopt -s histappend
-
-HISTSIZE=10000
-HISTFILESIZE=100000
-HISTCONTROL=ignorespace:ignoredups
-
-# Don't add history commands to the history. This is especially important for
-# csshX as it adds lots of 'history -d ...' lines that we really don't want.
-HISTIGNORE='history*'
-
-history() {
-  _bash_history_sync
-  builtin history "$@"
-}
-
-_bash_history_sync() {
-  builtin history -a            # Append session history to history file.
-  HISTFILESIZE=$HISTFILESIZE    # Resetting HISTFILESIZE will force history
-                                # file to be truncated to the specified size.
-                                # Without this, file will only be truncated
-                                # when the shell is closed.
-}
-
-PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
 
 # }}}
 
