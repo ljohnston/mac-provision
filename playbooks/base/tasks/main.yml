@@ -4,10 +4,24 @@
     name: 'wget' 
     state: 'present'
 
+- name: 'install ripgrep'
+  homebrew: 
+    name: 'ripgrep' 
+    state: 'present'
+
 - name: 'install the_silver_searcher'
   homebrew: 
     name: 'the_silver_searcher' 
     state: 'present'
+
+- name: 'install vim'
+  homebrew: 
+    name: 'vim' 
+    state: 'present'
+
+#
+# Homebrew casks.
+#
 
 #
 # NOTE: The 'homebrew_cask' module fails if an app has been installed externally.
@@ -74,11 +88,19 @@
     state: 'present'
     accept_external_apps: true
 
+#
+# Non-brew installs.
+#
+
 - name: 'install powerline-go'
   get_url: 
     url: 'https://github.com/justjanne/powerline-go/releases/download/v1.11.0/powerline-go-darwin-amd64'
     dest: '/usr/local/bin/powerline-go'
     mode: '0755'
+
+#
+# My dotfiles.
+#
 
 - name: '.bashrc symlink'
   file: 
@@ -91,6 +113,10 @@
     src: '{{ playbook_dir }}/../dotfiles/.profile'
     dest: '~/.profile'
     state: 'link'
+
+#
+# My vim config.
+#
 
 - name: 'install vim config'
   git: 	
