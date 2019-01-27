@@ -88,6 +88,13 @@
     state: 'present'
     accept_external_apps: true
 
+- name: 'install vivaldi'
+  homebrew_cask: 
+    name: 'vivaldi' 
+    state: 'present'
+    upgrade: 'yes'
+    accept_external_apps: true
+
 #
 # Non-brew installs.
 #
