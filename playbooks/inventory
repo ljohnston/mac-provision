@@ -3,3 +3,4 @@ localhost
 
 [macbook:vars]
 ansible_python_interpreter = '/usr/bin/env python'
+ansible_connection = 'local'
