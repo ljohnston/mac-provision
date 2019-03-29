@@ -1,99 +1,109 @@
 ---
-- name: 'install wget'
+
+#
+# Homebrew.
+#
+
+# Do a brew update.
+- homebrew:
+    update_homebrew: 'yes'
+
+- name: 'install asdf'
   homebrew: 
-    name: 'wget' 
-    state: 'present'
+    name: 'asdf' 
+    state: 'latest'
 
 - name: 'install ripgrep'
   homebrew: 
     name: 'ripgrep' 
-    state: 'present'
+    state: 'latest'
 
 - name: 'install the_silver_searcher'
   homebrew: 
     name: 'the_silver_searcher' 
-    state: 'present'
+    state: 'latest'
 
 - name: 'install vim'
   homebrew: 
     name: 'vim' 
-    state: 'present'
+    state: 'latest'
+
+- name: 'install wget'
+  homebrew: 
+    name: 'wget' 
+    state: 'latest'
 
 #
 # Homebrew casks.
 #
 
 #
-# NOTE: The 'homebrew_cask' module fails if an app has been installed externally.
-# This includes an app that was orginally installed via the module, but then
-# updates itself (e.g. iterm2, macvim, etc.). The 'accept_external_apps'
-# parameter can be used to avoid the failures.
+# I've tried to set this up to handle upgrades but that seems to be fraught
+# with peril (the issues are too many to enumerate). So I've pretty much just
+# set this up to ensure the apps are installed, but that's it. This means that
+# I can upgrade apps via their automatic upgrade feature or just via brew
+# directly.
+#
+# In addition, we use 'accept_external_apps' which means that the task should
+# basically no-op regardless of how the app got installed (i.e. whether our
+# task did it or not). That seems to be buggy though and doesn't always work.
+# The workaround for an app in that case is to uninstall it and then either
+# install it via brew or this playbook, afterwhich, it's all good.
 #
 
 - name: 'install plain-clip'
   homebrew_cask: 
     name: 'plain-clip'
     state: 'present'
-    accept_external_apps: true
+    accept_external_apps: 'yes'
 
 - name: 'install controlplane'
   homebrew_cask: 
     name: 'controlplane' 
     state: 'present'
-    accept_external_apps: true
+    accept_external_apps: 'yes'
 
 - name: 'install google-chrome'
   homebrew_cask: 
     name: 'google-chrome' 
     state: 'present'
-    accept_external_apps: true
+    accept_external_apps: 'yes'
 
 - name: 'install iterm2'
   homebrew_cask: 
     name: 'iterm2' 
     state: 'present'
-    accept_external_apps: true
+    accept_external_apps: 'yes'
 
 - name: 'install macvim'
   homebrew_cask: 
     name: 'macvim' 
     state: 'present'
-    accept_external_apps: true
-
-# Spotify {{
-# For some reason, Spotify takes _way_ too long to install, so we'll use
-# this 'stat' trick to bypass the install if the app already exists.
-- name: 'look for spotify'
-  stat: 
-    path: '/Applications/Spotify.app'
-  register: spotify_app
+    accept_external_apps: 'yes'
 
 - name: 'install spotify'
   homebrew_cask: 
     name: 'spotify' 
     state: 'present'
-    accept_external_apps: true
-  when: not spotify_app.stat.exists
-# }}
+    accept_external_apps: 'yes'
 
 - name: 'install vagrant'
   homebrew_cask: 
     name: 'vagrant' 
     state: 'present'
-    accept_external_apps: true
+    accept_external_apps: 'yes'
 
 - name: 'install virtualbox'
   homebrew_cask: 
     name: 'virtualbox' 
     state: 'present'
-    accept_external_apps: true
+    accept_external_apps: 'yes'
 
 - name: 'install vivaldi'
   homebrew_cask: 
     name: 'vivaldi' 
     state: 'present'
-    upgrade: 'yes'
-    accept_external_apps: true
+    accept_external_apps: 'yes'
 
 #
 # Non-brew installs.
