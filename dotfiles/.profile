@@ -45,6 +45,11 @@ which -s rbenv && eval "$(rbenv init -)"
 which -s pyenv && eval "$(pyenv init -)"
 which -s jenv && eval "$(jenv init -)"
 
+if which -s asdf; then
+    source $(brew --prefix asdf)/asdf.sh
+    source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+fi
+
 # }}}
  
 # etc {{{
