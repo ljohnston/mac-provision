@@ -13,6 +13,31 @@
     name: 'asdf' 
     state: 'latest'
 
+#
+# Even with 'asdf' there are some similiar tools I want to install:
+#
+#   - jenv: Because it allows me to install any jre/jdk via any mechanims and
+#     then just tell jenv about it.
+#   - pyenv/rbenv: To get python-build and ruby-build installed, which gives me
+#     much more flexibiltiy when it comes to installing them, and then just let
+#     asdf manage the different versions.
+# 
+
+- name: 'install jenv'
+  homebrew: 
+    name: 'asdf' 
+    state: 'latest'
+
+- name: 'install pyenv'
+  homebrew: 
+    name: 'pyenv' 
+    state: 'latest'
+
+- name: 'install rbenv'
+  homebrew: 
+    name: 'rbenv' 
+    state: 'latest'
+
 - name: 'install ripgrep'
   homebrew: 
     name: 'ripgrep' 

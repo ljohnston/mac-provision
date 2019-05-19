@@ -39,15 +39,31 @@ fi
 
 # Tool environments {{{
 
-# These must come _after_ brew PATH manipulation.
-
-which -s rbenv && eval "$(rbenv init -)"
-which -s pyenv && eval "$(pyenv init -)"
+# For now, I think jenv is better for java than asdf. Mostly because jenv
+# leaves me in control of installing whatever jdks/jres I want and then simply
+# telling jenv about them.
 which -s jenv && eval "$(jenv init -)"
 
+# This must come _after_ brew PATH manipulations.
 if which -s asdf; then
     source $(brew --prefix asdf)/asdf.sh
     source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+
+    # The above 'asdf.sh' that we're sourceing actually creates `asdf` as a
+    # function. Therfore, we can't directly wrap it in a function called
+    # `asdf`, so we'll do this little wrapper/alias trick.
+
+    function asdf_() {
+        if echo "$@" |grep '^install \+python' &>/dev/null; then
+            echo "Use 'python-build <version> ~/.asdf/installs/python/...'"
+        elif echo "$@" |grep '^install \+ruby' &>/dev/null; then
+            echo "Use 'ruby-build <version> ~/.asdf/installs/ruby/...'"
+        else
+            command asdf "$@"
+        fi
+    }
+
+    alias asdf='asdf_'
 fi
 
 # }}}

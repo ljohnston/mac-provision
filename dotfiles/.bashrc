@@ -38,6 +38,11 @@ if which vagrant >> /dev/null; then
     alias vst='vagrant status'
     alias vsnap='vagrant snapshot'
 fi
+
+if which kubectl >> /dev/null; then
+    alias k='kubectl'
+fi
+
 # }}}
 
 # History {{{
@@ -157,7 +162,7 @@ elif which powerline-go >/dev/null; then
         #
 
         PS1="$(powerline-go \
-               -modules nix-shell,venv,ssh,cwd,perms,git,hg,jobs,exit,root,vgo \
+               -modules nix-shell,venv,kube,ssh,cwd,perms,git,hg,jobs,exit,root,vgo \
                -error $? \
                |sed -E 's/ \\\$ (.*)$/\1\\n$ /' \
             )"
