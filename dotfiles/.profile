@@ -66,6 +66,17 @@ if which -s asdf; then
     alias asdf='asdf_'
 fi
 
+if which -s pyenv; then
+    function pyenv() {
+        echo "Use 'asdf' to manage python versions (via 'python-build')..."
+    }
+fi
+
+if which -s rbenv; then
+    function rbenv() {
+        echo "Use 'asdf' to manage ruby versions (via 'ruby-build')..."
+    }
+fi
 # }}}
  
 # etc {{{
