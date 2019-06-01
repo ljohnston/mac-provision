@@ -4,6 +4,11 @@
 # Homebrew.
 #
 
+#
+# TODO: 
+# - sdkman installation
+# 
+
 # Do a brew update.
 - homebrew:
     update_homebrew: 'yes'
@@ -16,17 +21,11 @@
 #
 # Even with 'asdf' there are some similiar tools I want to install:
 #
-#   - jenv: Because it allows me to install any jre/jdk via any mechanims and
 #     then just tell jenv about it.
 #   - pyenv/rbenv: To get python-build and ruby-build installed, which gives me
 #     much more flexibiltiy when it comes to installing them, and then just let
 #     asdf manage the different versions.
 # 
-
-- name: 'install jenv'
-  homebrew: 
-    name: 'asdf' 
-    state: 'latest'
 
 - name: 'install pyenv'
   homebrew: 
@@ -91,43 +90,50 @@
 - name: 'install google-chrome'
   homebrew_cask: 
     name: 'google-chrome' 
-    state: 'present'
+    state: 'latest'
+    install_options: 'force'
     accept_external_apps: 'yes'
 
 - name: 'install iterm2'
   homebrew_cask: 
     name: 'iterm2' 
-    state: 'present'
+    state: 'latest'
+    install_options: 'force'
     accept_external_apps: 'yes'
 
 - name: 'install macvim'
   homebrew_cask: 
     name: 'macvim' 
-    state: 'present'
+    state: 'latest'
+    install_options: 'force'
     accept_external_apps: 'yes'
 
 - name: 'install spotify'
   homebrew_cask: 
     name: 'spotify' 
-    state: 'present'
+    state: 'latest'
+    install_options: 'force'
     accept_external_apps: 'yes'
 
 - name: 'install vagrant'
   homebrew_cask: 
     name: 'vagrant' 
-    state: 'present'
+    state: 'latest'
+    install_options: 'force'
     accept_external_apps: 'yes'
 
 - name: 'install virtualbox'
   homebrew_cask: 
     name: 'virtualbox' 
-    state: 'present'
+    state: 'latest'
+    install_options: 'force'
     accept_external_apps: 'yes'
 
 - name: 'install vivaldi'
   homebrew_cask: 
     name: 'vivaldi' 
-    state: 'present'
+    state: 'latest'
+    install_options: 'force'
     accept_external_apps: 'yes'
 
 #
