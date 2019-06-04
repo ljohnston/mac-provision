@@ -37,6 +37,11 @@
     name: 'rbenv' 
     state: 'latest'
 
+- name: 'install bash'
+  homebrew:
+    name: 'bash' 
+    state: 'latest'
+
 - name: 'install ripgrep'
   homebrew: 
     name: 'ripgrep' 
@@ -161,6 +166,23 @@
     src: '{{ playbook_dir }}/../dotfiles/.profile'
     dest: '~/.profile'
     state: 'link'
+
+#
+# bash shell
+#
+
+- name: add homwbrew bash to /etc/shells
+  lineinfile: 
+    path: '/etc/shells' 
+    line: '/usr/local/bin/bash' 
+    state: 'present'
+  become: 'yes'
+
+- name: Set default shell
+  user: 
+    name: '{{ ansible_user_id }}' 
+    shell: '/usr/local/bin/bash'
+  become: 'yes'
 
 #
 # My vim config.
