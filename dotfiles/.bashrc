@@ -16,12 +16,23 @@ set -o vi
 
 # }}}
 
+# Completion {{{
+
+# Requires 'brew install bash-completion@2'
+# See: https://github.com/scop/bash-completion
+export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+
+# }}}
+
 # Aliases {{{
 
 alias gw='./gradlew'
 
 alias ll='ls -l'
 alias la='ls -la'
+
+alias less='less -R'
 
 alias c='clear'
 
@@ -41,6 +52,8 @@ fi
 
 if which kubectl >> /dev/null; then
     alias k='kubectl'
+    source <(kubectl completion bash)
+    complete -o default -F __start_kubectl k
 fi
 
 # }}}

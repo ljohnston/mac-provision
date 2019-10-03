@@ -46,12 +46,11 @@ which -s jenv && eval "$(jenv init -)"
 
 # This must come _after_ brew PATH manipulations.
 if which -s asdf; then
-    source $(brew --prefix asdf)/asdf.sh
-    source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
 
-    # The above 'asdf.sh' that we're sourceing actually creates `asdf` as a
+    # The 'asdf.sh' that we're sourceing below actually creates `asdf` as a
     # function. Therfore, we can't directly wrap it in a function called
-    # `asdf`, so we'll do this little wrapper/alias trick.
+    # `asdf`, so we'll do this little wrapper/alias trick, which we need to do
+    # before the sourceing (not sure why).
 
     function asdf_() {
         if echo "$@" |grep '^install \+python' &>/dev/null; then
@@ -64,6 +63,9 @@ if which -s asdf; then
     }
 
     alias asdf='asdf_'
+
+    source $(brew --prefix asdf)/asdf.sh
+    source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
 fi
 
 if which -s pyenv; then
