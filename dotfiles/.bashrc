@@ -4,6 +4,8 @@
 # .bashrc
 # }}}
 
+# echo 'bashrc start: ' $(date) >> /tmp/bashrc-timings.log
+
 # Source global definitions
 if [ -f /etc/bashrc ]; then
     . /etc/bashrc
@@ -69,7 +71,7 @@ fi
 #
 # Got most of this from:
 #
-# http://unix.stackexchange.com/questions/1288/preserve-bash-history-in-multiple-terminal-windows
+# https://unix.stackexchange.com/questions/1288/preserve-bash-history-in-multiple-terminal-windows
 #
 # Note that as the above post mentions, there can be issues with referencing
 # commands by number in this scheme.
@@ -87,7 +89,7 @@ HISTCONTROL=ignorespace:ignoredups
 
 # Don't add history commands to the history. This is especially important for
 # csshX as it adds lots of 'history -d ...' lines that we really don't want.
-HISTIGNORE='history*'
+HISTIGNORE='history *'
 
 history() {
   _bash_history_sync
@@ -341,6 +343,8 @@ complete -o default -o nospace -F _sshcomplete ssh
 # allow us to keep our "core" dotfiles the same across all locations, yet still
 # give us the opportunity to customize things for specific boxes, sites, etc.
 #
+
+# echo 'bashrc end: ' $(date) >> /tmp/bashrc-timings.log
 
 if [ -f "$HOME/.bashrc.local" ]; then
     . "$HOME/.bashrc.local"

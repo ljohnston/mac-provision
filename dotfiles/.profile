@@ -20,6 +20,9 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 # }}}
 
+# Not actually the start, but dont' want .bashrc timings.
+# echo 'profile start: ' $(date) >> /tmp/bashrc-timings.log
+
 # OS X {{{
 if [[ $OSTYPE == *darwin* ]]; then
 
@@ -80,7 +83,7 @@ if which -s rbenv; then
     }
 fi
 # }}}
- 
+
 # etc {{{
 
 # Add ~/bin to path if user has one.
@@ -98,6 +101,8 @@ export EDITOR=vim
 # allow us to keep our "core" dotfiles the same across all locations, yet still
 # give us the opportunity to customize things for specific boxes, sites, etc.
 #
+
+# echo 'profile end: ' $(date) >> /tmp/bashrc-timings.log
 
 if [ -f "$HOME/.profile.local" ]; then
     . "$HOME/.profile.local"
