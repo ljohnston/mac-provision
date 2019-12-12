@@ -121,13 +121,16 @@ fi
 
 shopt -s histappend
 
-HISTSIZE=10000
+HISTSIZE=5000
 HISTFILESIZE=100000
-HISTCONTROL=ignorespace:ignoredups
+HISTCONTROL=ignorespace:ignoredups:erasedups
 
-# Don't add history commands to the history. This is especially important for
-# csshX as it adds lots of 'history -d ...' lines that we really don't want.
-HISTIGNORE='history *'
+# Don't add to history:
+# - history commands (really important for csshX)
+# - non-arg ls commands
+# - echo to base64 or json, which can oftentimes be _really_ long lines (which
+#   makes my command recall _very_ slow)
+HISTIGNORE='history:history *:h:h *:hl:ls:ll:la:echo *base64*:echo *json_pp*'
 
 history() {
   _bash_history_sync
