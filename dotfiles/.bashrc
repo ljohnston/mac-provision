@@ -4,7 +4,45 @@
 # .bashrc
 # }}}
 
-# echo 'bashrc start: ' $(date) >> /tmp/bashrc-timings.log
+# Startup Script Profiling {{{
+#
+# Occassionally I end up with so much crap in my bash startup scripts that
+# things become really slow. When that happens, tracking down the culprit can
+# be difficult. Uncommenting the following and examining the specified log file
+# can identify commands that take a while to execute. 
+# 
+# When needed, uncomment the following, start a new shell (it will appear to
+# hang because the IO in it has been messed with), exit it, and examing the log
+# file.
+#
+# Some tips when digging into the log file:
+#
+# The way PS4 works is each spawned process adds a '+' sign to the front of the
+# prompt. The log file can be quite long, so it can be more informative to
+# ignore the lower-level processes. Specifically:
+#
+#   $ grep -E '^\+{1,2} ' <logfile>
+#
+#   The above should give all of the commands directly called from the startup
+#   scripts. Increasing the second digit in the brackets will increase the
+#   detail. 
+#
+# With the following in effect, startup will be _really_ slow. The relative
+# timings in the log file, however, should be informative.
+#
+
+# PS4='+ $(gdate "+%s.%N")\011 '
+# LOGFILE=/tmp/bashstart.$$.log
+#
+# echo
+# echo 'Startup script profiling is enabled.'
+# echo "Your new shell will appear to hang, but that's actually not the case."
+# echo "Exit the shell by typing 'exit'<CR>."
+# echo "You will find profiling details in '${LOGFILE}'"
+# exec 3>&2 2>${LOGFILE}
+# set -x
+
+# }}}
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -144,6 +182,10 @@ PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
 
 if [ -n "${VIM}" ]; then
     # We're in a VIM shell (i.e. :shell).
+    :
+
+elif [[ ! "${PS4}" =~ ^\+[[:space:]]*$ ]]; then
+    # We've specifically set PS4, let's not mess it up with PS1.
     :
 
 elif which powerline-go >/dev/null; then
@@ -344,10 +386,7 @@ complete -o default -o nospace -F _sshcomplete ssh
 # give us the opportunity to customize things for specific boxes, sites, etc.
 #
 
-# echo 'bashrc end: ' $(date) >> /tmp/bashrc-timings.log
-
 if [ -f "$HOME/.bashrc.local" ]; then
     . "$HOME/.bashrc.local"
 fi
 # }}}
-

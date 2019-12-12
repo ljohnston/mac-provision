@@ -20,9 +20,6 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 # }}}
 
-# Not actually the start, but dont' want .bashrc timings.
-# echo 'profile start: ' $(date) >> /tmp/bashrc-timings.log
-
 # OS X {{{
 if [[ $OSTYPE == *darwin* ]]; then
 
@@ -67,8 +64,11 @@ if which -s asdf; then
 
     alias asdf='asdf_'
 
-    source $(brew --prefix asdf)/asdf.sh
-    source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+    # These 'brew --prefic ...' calls are way to slow.
+    # source $(brew --prefix asdf)/asdf.sh
+    # source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+    source /usr/local/opt/asdf/asdf.sh
+    source /usr/local/opt/asdf/etc/bash_completion.d/asdf.bash
 fi
 
 if which -s pyenv; then
@@ -101,8 +101,6 @@ export EDITOR=vim
 # allow us to keep our "core" dotfiles the same across all locations, yet still
 # give us the opportunity to customize things for specific boxes, sites, etc.
 #
-
-# echo 'profile end: ' $(date) >> /tmp/bashrc-timings.log
 
 if [ -f "$HOME/.profile.local" ]; then
     . "$HOME/.profile.local"
