@@ -141,7 +141,7 @@ if which kubectl >> /dev/null; then
     #   while using ".kubeconfig" files for more dyrnamic clusters.
     #
     # BASH COMPLETION
-    #   The 'kc' funtion supports standard bash auto completion, offering
+    #   The 'kc' function supports standard bash auto completion, offering
     #   completion for all the kubernetes contexts available from the
     #   configured sources as described above.
     # 
@@ -163,24 +163,20 @@ if which kubectl >> /dev/null; then
         elif [ "${context}" == 'all' ]; then
             export KUBECONFIG=$(kc_all)
 
+        elif [[ ${context} =~ \.kubeconfig$ ]]; then
+            [ -f "${HOME}/.kube/${context}" ] && \
+                export KUBECONFIG="${HOME}/.kube/${context}" || \
+                echo "error: no kubeconfig exists with the name '${context}'"
+
         else
-
-            if [[ ${context} =~ \.kubeconfig$ ]]; then
-                [ -f "${HOME}/.kube/${context}" ] && \
-                    export KUBECONFIG="${HOME}/.kube/${context}" || \
-                    echo "error: no kubeconfig exists with the name: ${context}"
+            if ! KUBECONFIG=$(kc_all) kubectl config get-contexts --output='name' ${context} &> /dev/null; then
+                echo "error: no context exists with the name '${context}'"
                 return
-            fi
-
-            export KUBECONFIG=$(kc_all)
-
-            if ! kubectl config get-contexts --output='name' ${context} &> /dev/null; then
-                echo "error: no context exists with the name: ${context}"
             fi
 
             [ -d "${HOME}/.kube/.kc" ] || mkdir "${HOME}/.kube/.kc"
 
-            kubectl config view --minify --raw --context ${context} >"${HOME}/.kube/.kc/${context}.kc"
+            KUBECONFIG=$(kc_all) kubectl config view --minify --raw --context ${context} >"${HOME}/.kube/.kc/${context}.kc"
 
             export KUBECONFIG="${HOME}/.kube/.kc/${context}.kc"
         fi
