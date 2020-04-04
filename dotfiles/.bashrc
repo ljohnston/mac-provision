@@ -12,7 +12,7 @@
 # can identify commands that take a while to execute. 
 # 
 # When needed, uncomment the following, start a new shell (it will appear to
-# hang because the IO in it has been messed with), exit it, and examing the log
+# hang because the IO in it has been messed with), exit it, and examine the log
 # file.
 #
 # Some tips when digging into the log file:
@@ -44,12 +44,12 @@
 
 # }}}
 
+# General {{{
+
 # Source global definitions
 if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
-
-# General {{{
 
 export CLICOLOR=1
 set -o vi
@@ -91,9 +91,73 @@ if which vagrant >> /dev/null; then
 fi
 
 if which kubectl >> /dev/null; then
+
     alias k='kubectl'
     source <(kubectl completion bash)
     complete -o default -F __start_kubectl k
+
+    which kubectx >> /dev/null && alias kctx='kubectx'
+    which kubens  >> /dev/null && alias kns='kubens'
+
+    #
+    # Mangage kubeconfigs.
+    # 
+    function kc() {
+
+      if [[ $# -gt 1 || ${1} == 'help' ]]; then
+        echo "Usage: kc [<context>|all|-] (no args: show KUBECONFIG)"
+        return
+      fi
+
+      context=${1}
+
+      if [ -z "${context}" ]; then
+        [ "${KUBECONFIG}" == "" ] && echo "KUBECONFIG not set" || echo $KUBECONFIG
+
+      elif [ "${context}" == '-' ]; then
+        unset KUBECONFIG
+
+      elif [ "${context}" == 'all' ]; then
+        [ -f "${HOME}/.kube/config" ] && KUBECONFIG="${HOME}/.kube/config"
+
+        for f in $(ls ~/.kube/*.kubeconfig); do
+          KUBECONFIG="$KUBECONFIG:$f"
+          KUBECONFIG=$(echo $KUBECONFIG | sed 's/^://')
+          export KUBECONFIG
+        done
+      else
+
+        if ! kubectl config get-contexts --output='name' ${context} &> /dev/null; then
+          echo "error: no context exists with the name: ${context}"
+        fi
+
+        kubectl config view --minify --raw --context ${context} >~/.kube/${context}.kc
+
+        export KUBECONFIG="${HOME}/.kube/${context}.kc"
+      fi
+    }
+
+    function __kc_completions() {
+      local contexts kubeconfigs completions
+
+      if contexts=$(kubectl config --kubeconfig ~/.kube/config get-contexts --output='name' 2>/dev/null); then
+        completions=("${contexts[*]}")
+        # contexts=("${contexts[*]}")
+      fi
+
+      if kubeconfigs=$(ls -1 ~/.kube/*.kubeconfig 2>/dev/null |xargs -n1 -I{} basename "{}"); then
+        # echo "foo"
+        completions+=("${kubeconfigs[*]}")
+        # kubeconfigs=("${kubeconfigs[*]}")
+      fi
+
+      # echo "c:${completions[@]}"
+      if [ ${#completions[@]} -gt 0 ]; then 
+        COMPREPLY=($(compgen -W "${completions[*]}" -- "${COMP_WORDS[1]}"))
+      fi
+    }
+
+    complete -F __kc_completions kc
 fi
 
 # }}}
@@ -153,20 +217,9 @@ PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
 
 # Prompt {{{
 #
-# We'll use bash-git-prompt (https://github.com/magicmonty/bash-git-prompt) if
-# it's installed.
-#
-# Note that we rely on an installation done as a simple 'git clone ...' as
-# opposed to a brew install or some other method. This can be done as:
-#
-# $ cd
-# $ git clone https://github.com/magicmonty/bash-git-prompt.git .bash-git-prompt
-# $ cd .bash-git-prompt
-# $ git tag
-# $ git checkout <tag>
-#
-# If bash-git-prompt is NOT installed, we'll put together our own prompt that
-# includes the following:
+# If powerline-go is installed use it. If not...
+# If a brew installation of bash-git-prompt exits, well use that. If not...
+# We'll cobble together our own prompt that includes the following:
 #
 # - timestamp 
 # - PWD
@@ -179,8 +232,8 @@ PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
 # preference, but long prompts seem to hose up command recall when using
 # 'set -o vi'.
 #
-# Do this BEFORE the history stuff as that attaches itself to the prompt as
-# well.
+# IMPORTANT! Do this BEFORE the history stuff as that attaches itself to the
+# prompt as well.
 #
 
 if [ -n "${VIM}" ]; then
@@ -203,20 +256,19 @@ elif which powerline-go >/dev/null; then
         #   - The '-newline' option is good so that command input isn't
         #   constantly jumping around as the length of the prompt grows and
         #   shrinks. The implementation isn't awesome, however. Specifically:
-        #       - The '$' in the prompt now shows up twice. Once at the end of
+        #       - The '$' in the prompt shows up twice. Once at the end of
         #       the "powerline" and again on the newline. No reason for it to
         #       be in the "powerline" itself.
         #       - The newline, in addition to having the '$', also has the '>'
         #       (as a font symbol) following the '$'. There's no need for that,
         #       but it's actually annoying when it come to copying and pasting
-        #       commands (e.g. into slack) as it only shows up as an odd
-        #       looking artifact.
+        #       commands as it only shows up as an odd looking artifact.
         #   I'll handle this specifically, by not using '-newline' option and
         #   then sed'ing the prompt to remove the '$' and insert it back after
         #   a newline.
         #
         #   I've since found that it's the "root" module that controls this
-        #   behavior. If we remote it, with -newline, things are much better.
+        #   behavior. If we remove it, and enable -newline, things are better.
         #   However, there's still the > symbol in front of the $ on the
         #   newline. I think I like my sed option better.
         #
@@ -231,10 +283,6 @@ elif which powerline-go >/dev/null; then
     if [ "$TERM" != "linux" ]; then
         PROMPT_COMMAND="_update_ps1;$PROMPT_COMMAND"
     fi
-
-elif [ -f ~/.bash-git-prompt/gitprompt.sh ]; then
-    GIT_PROMPT_THEME=Solarized
-    source ~/.bash-git-prompt/gitprompt.sh
 
 elif [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
     __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"

@@ -33,6 +33,8 @@ if [[ $OSTYPE == *darwin* ]]; then
             |sed -E 's|:?/usr/local/bin:|:|' \
             |sed -E 's|:/usr/local/bin:?|:|')
         PATH="/usr/local/bin:${path}"
+
+        export HOMEBREW_GITHUB_API_TOKEN=1184c30c8dc3e6da0380702a56ad11dc8342c0b9
     fi
 fi
 # }}}
@@ -89,6 +91,10 @@ fi
 # Add ~/bin to path if user has one.
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
+fi
+
+if [ -d "/usr/local/sbin" ] ; then
+    PATH="/usr/local/sbin:$PATH"
 fi
 
 export EDITOR=vim
