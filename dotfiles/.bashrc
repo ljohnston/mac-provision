@@ -89,72 +89,134 @@ if which vagrant >> /dev/null; then
     alias vst='vagrant status'
     alias vsnap='vagrant snapshot'
 fi
+# }}}
 
+# Kubernetes Tooling {{{
 if which kubectl >> /dev/null; then
 
     alias k='kubectl'
     source <(kubectl completion bash)
     complete -o default -F __start_kubectl k
 
-    which kubectx >> /dev/null && alias kctx='kubectx'
+    which kubectx >> /dev/null && alias kcx='kubectx'
     which kubens  >> /dev/null && alias kns='kubens'
 
     #
-    # Mangage kubeconfigs.
+    # FUNCTION
+    #   kc
+    #
+    # DESC
+    #   Manage the KUBECONFIG environment variable.
+    #
+    # USAGE
+    #   kc [<context>|all|-]
+    #   
+    #   where:
+    #     <context> dynamically generates a <context>-specific
+    #               kubeconfig file and sets KUBECONFIG accordingly
+    #     all       sets KUBECONFIG to all available kubeconfigs (see 
+    #               below KUBECONFIG SOURCES for details)
+    #     -         Unsets KUBECONFIG
+    #
+    #   Running 'kc' with no arguments shows the current KUBECONFIG
+    #   environment variable setting.
+    #
+    #   Running 'kc <context>' allows the user to effectively make a
+    #   single context available within their current shell, thereby
+    #   protecting that shell from context or namespace changes made
+    #   in other shells.
+    #
+    # KUBECONFIG SOURCES
+    #   Available kubeconfigs come from the following sources:
+    #
+    #     ~/.kube/config
+    #       The default location for kubectl to look for its kubeconfigs.
+    #     ~/.kube/*.kubeconfig
+    #       Any files with a ".kubeconfig" extension in the ~/.kube
+    #       will be added as available kubeconfigs.
+    #
+    #   The user can manage their sources however they like. In general,
+    #   however, the suggested strategy is to maintain more static, or 
+    #   long-lived, cluster configs in the starnadard ~/kube/config file,
+    #   while using ".kubeconfig" files for more dyrnamic clusters.
+    #
+    # BASH COMPLETION
+    #   The 'kc' funtion supports standard bash auto completion, offering
+    #   completion for all the kubernetes contexts available from the
+    #   configured sources as described above.
     # 
     function kc() {
 
-      if [[ $# -gt 1 || ${1} == 'help' ]]; then
-        echo "Usage: kc [<context>|all|-] (no args: show KUBECONFIG)"
-        return
-      fi
-
-      context=${1}
-
-      if [ -z "${context}" ]; then
-        [ "${KUBECONFIG}" == "" ] && echo "KUBECONFIG not set" || echo $KUBECONFIG
-
-      elif [ "${context}" == '-' ]; then
-        unset KUBECONFIG
-
-      elif [ "${context}" == 'all' ]; then
-        [ -f "${HOME}/.kube/config" ] && KUBECONFIG="${HOME}/.kube/config"
-
-        for f in $(ls ~/.kube/*.kubeconfig); do
-          KUBECONFIG="$KUBECONFIG:$f"
-          KUBECONFIG=$(echo $KUBECONFIG | sed 's/^://')
-          export KUBECONFIG
-        done
-      else
-
-        if ! kubectl config get-contexts --output='name' ${context} &> /dev/null; then
-          echo "error: no context exists with the name: ${context}"
+        if [[ $# -gt 1 || ${1} == 'help' ]]; then
+            echo "Usage: kc [<context>|all|-] (no args: show KUBECONFIG)"
+            return
         fi
 
-        kubectl config view --minify --raw --context ${context} >~/.kube/${context}.kc
+        context=${1}
 
-        export KUBECONFIG="${HOME}/.kube/${context}.kc"
-      fi
+        if [ -z "${context}" ]; then
+            [ "${KUBECONFIG}" == "" ] && echo "KUBECONFIG not set" || echo $KUBECONFIG
+
+        elif [ "${context}" == '-' ]; then
+            unset KUBECONFIG
+
+        elif [ "${context}" == 'all' ]; then
+            export KUBECONFIG=$(kc_all)
+
+        else
+
+            if [[ ${context} =~ \.kubeconfig$ ]]; then
+                [ -f "${HOME}/.kube/${context}" ] && \
+                    export KUBECONFIG="${HOME}/.kube/${context}" || \
+                    echo "error: no kubeconfig exists with the name: ${context}"
+                return
+            fi
+
+            export KUBECONFIG=$(kc_all)
+
+            if ! kubectl config get-contexts --output='name' ${context} &> /dev/null; then
+                echo "error: no context exists with the name: ${context}"
+            fi
+
+            [ -d "${HOME}/.kube/.kc" ] || mkdir "${HOME}/.kube/.kc"
+
+            kubectl config view --minify --raw --context ${context} >"${HOME}/.kube/.kc/${context}.kc"
+
+            export KUBECONFIG="${HOME}/.kube/.kc/${context}.kc"
+        fi
+    }
+
+    function kc_all() {
+        local kubeconfig
+
+        [ -f "${HOME}/.kube/config" ] && kubeconfig="${HOME}/.kube/config"
+
+        for f in $(ls ~/.kube/*.kubeconfig); do
+            kubeconfig="$kubeconfig:$f"
+            kubeconfig=$(echo $kubeconfig | sed 's/^://')
+        done
+
+        echo $kubeconfig
     }
 
     function __kc_completions() {
-      local contexts kubeconfigs completions
+        local contexts kubeconfigs completions
 
-      if contexts=$(kubectl config --kubeconfig ~/.kube/config get-contexts --output='name' 2>/dev/null); then
-        completions=("${contexts[*]}")
-        # contexts=("${contexts[*]}")
-      fi
+        if contexts=$(kubectl config --kubeconfig ~/.kube/config get-contexts --output='name' 2>/dev/null); then
+            completions=("${contexts[*]}")
+            # contexts=("${contexts[*]}")
+        fi
 
-      if kubeconfigs=$(ls -1 ~/.kube/*.kubeconfig 2>/dev/null |xargs -n1 -I{} basename "{}"); then
-        # echo "foo"
-        completions+=("${kubeconfigs[*]}")
-        # kubeconfigs=("${kubeconfigs[*]}")
-      fi
+        if kubeconfigs=$(ls -1 ~/.kube/*.kubeconfig 2>/dev/null |xargs -n1 -I{} basename "{}"); then
+            # echo "foo"
+            completions+=("${kubeconfigs[*]}")
+            # kubeconfigs=("${kubeconfigs[*]}")
+        fi
 
-      # echo "c:${completions[@]}"
-      if [ ${#completions[@]} -gt 0 ]; then 
-        COMPREPLY=($(compgen -W "${completions[*]}" -- "${COMP_WORDS[1]}"))
-      fi
+          # echo "c:${completions[@]}"
+          if [ ${#completions[@]} -gt 0 ]; then 
+              COMPREPLY=($(compgen -W "${completions[*]}" -- "${COMP_WORDS[1]}"))
+          fi
     }
 
     complete -F __kc_completions kc
