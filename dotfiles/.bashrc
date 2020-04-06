@@ -98,8 +98,18 @@ if which kubectl >> /dev/null; then
     source <(kubectl completion bash)
     complete -o default -F __start_kubectl k
 
-    which kubectx >> /dev/null && alias kcx='kubectx'
-    which kubens  >> /dev/null && alias kns='kubens'
+    # NOTE: `$ complete |grep <comman>` to get 
+    # current completion for <command>.
+
+    if which kubectx >> /dev/null; then
+        alias kx='kubectx'
+        complete -F _kube_contexts kx
+    fi
+
+    if which kubens  >> /dev/null; then
+        alias kn='kubens' 
+        complete -F _kube_namespaces kn
+    fi
 
     #
     # FUNCTION
@@ -336,6 +346,15 @@ elif which powerline-go >/dev/null; then
                -error $? \
                |sed -E 's/ \\\$ (.*)$/\1\\n$ /' \
             )"
+
+        # local __DURATION=1
+        #
+        # PS1="$(powerline-go \
+        #        -modules duration,nix-shell,venv,kube,ssh,cwd,perms,git,hg,jobs,exit,root,vgo \
+        #        -duration $__DURATION \
+        #        -error $? \
+        #        |sed -E 's/ \\\$ (.*)$/\1\\n$ /' \
+        #     )"
     }
 
     if [ "$TERM" != "linux" ]; then
