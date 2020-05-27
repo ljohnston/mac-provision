@@ -119,12 +119,13 @@ if which kubectl >> /dev/null; then
     #   Manage the KUBECONFIG environment variable.
     #
     # USAGE
-    #   kc [<context>|all|-]
+    #   kc [<context>|ls|all|-]
     #   
     #   where:
     #     <context> dynamically generates a <context>-specific
     #               kubeconfig file and sets KUBECONFIG accordingly
-    #     all       sets KUBECONFIG to all available kubeconfigs (see 
+    #     ls        lists all configured contexts and kubeconfigs
+    #     all       sets KUBECONFIG to all available configs (see 
     #               below KUBECONFIG SOURCES for details)
     #     -         Unsets KUBECONFIG
     #
@@ -157,8 +158,8 @@ if which kubectl >> /dev/null; then
     # 
     function kc() {
 
-        if [[ $# -gt 1 || ${1} == 'help' ]]; then
-            echo "Usage: kc [<context>|all|-] (no args: show KUBECONFIG)"
+        if [[ $# -gt 1 || ${1} == '-h' || ${1} == '--help' || ${1} == 'help' ]]; then
+            echo "Usage: kc [<context>|ls|all|-] (no args: show KUBECONFIG)"
             return
         fi
 
@@ -171,28 +172,57 @@ if which kubectl >> /dev/null; then
             unset KUBECONFIG
 
         elif [ "${context}" == 'all' ]; then
-            export KUBECONFIG=$(kc_all)
+            export KUBECONFIG=$(__kc_all)
+
+        elif [ "${context}" == 'ls' ]; then
+            local contexts kubeconfigs
+            contexts=$(__kc_configcontexts)
+            kubeconfigs=$(__kc_kubeconfigs)
+
+            echo '~/.kube/config:'
+            if [ -n "${contexts}" ]; then
+                for c in $(echo $contexts | tr ' ' '\n' |sort); do 
+                    echo "    ${c}"; 
+                done
+            else
+                echo '    <none>'
+            fi
+
+            echo '~/.kube/*.kubeconfig:'
+            if [ -n "${kubeconfigs}" ]; then
+                for k in $(echo $kubeconfigs | tr ' ' '\n' |sort); do 
+                    echo "    ${k}"; 
+                done
+            else
+                echo '    <none>'
+            fi
 
         elif [[ ${context} =~ \.kubeconfig$ ]]; then
             [ -f "${HOME}/.kube/${context}" ] && \
                 export KUBECONFIG="${HOME}/.kube/${context}" || \
                 echo "error: no kubeconfig exists with the name '${context}'"
 
+        # Important that we protect ourselves from 'kc --ls' or such,
+        # as this won't error on 'kubectl config get-contexts ...' used
+        # below and will actually set a goofy context that doesn't exist.
+        elif [[ "${context}" =~ ^- ]]; then
+            echo "Illegal argument: ${context} (try --help ?)"
+
         else
-            if ! KUBECONFIG=$(kc_all) kubectl config get-contexts --output='name' ${context} &> /dev/null; then
+            if ! KUBECONFIG=$(__kc_all) kubectl config get-contexts --output='name' ${context} &> /dev/null; then
                 echo "error: no context exists with the name '${context}'"
                 return
             fi
 
             [ -d "${HOME}/.kube/.kc" ] || mkdir "${HOME}/.kube/.kc"
 
-            KUBECONFIG=$(kc_all) kubectl config view --minify --raw --context ${context} >"${HOME}/.kube/.kc/${context}.kc"
+            KUBECONFIG=$(__kc_all) kubectl config view --minify --raw --context ${context} >"${HOME}/.kube/.kc/${context}.kc"
 
             export KUBECONFIG="${HOME}/.kube/.kc/${context}.kc"
         fi
     }
 
-    function kc_all() {
+    function __kc_all() {
         local kubeconfig
 
         [ -f "${HOME}/.kube/config" ] && kubeconfig="${HOME}/.kube/config"
@@ -205,16 +235,23 @@ if which kubectl >> /dev/null; then
         echo $kubeconfig
     }
 
+    function __kc_configcontexts() {
+        echo $(kubectl config --kubeconfig ~/.kube/config get-contexts --output='name' 2>/dev/null)
+    }
+
+    function __kc_kubeconfigs() {
+        echo $(ls -1 ~/.kube/*.kubeconfig 2>/dev/null |xargs -n1 -I{} basename "{}")
+    }
+
     function __kc_completions() {
         local contexts kubeconfigs completions
 
-        if contexts=$(kubectl config --kubeconfig ~/.kube/config get-contexts --output='name' 2>/dev/null); then
+        if contexts=$(__kc_configcontexts); then
             completions=("${contexts[*]}")
             # contexts=("${contexts[*]}")
         fi
 
-        if kubeconfigs=$(ls -1 ~/.kube/*.kubeconfig 2>/dev/null |xargs -n1 -I{} basename "{}"); then
-            # echo "foo"
+        if kubeconfigs=$(__kc_kubeconfigs); then
             completions+=("${kubeconfigs[*]}")
             # kubeconfigs=("${kubeconfigs[*]}")
         fi
