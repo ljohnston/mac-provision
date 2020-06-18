@@ -44,14 +44,42 @@
 
 # }}}
 
+echo .bashrc
+
 # General {{{
 
-# Source global definitions
-if [ -f /etc/bashrc ]; then
-    . /etc/bashrc
+#
+# In general, keep PATH mods up front in case others rely on them.
+#
+
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+if [ -d "/usr/local/sbin" ] ; then
+    PATH="/usr/local/sbin:$PATH"
+fi
+
+if [[ $OSTYPE == *darwin* ]]; then
+
+    # If we're running brew, let's make sure that /usr/local/bin is first in
+    # our PATH to ensure our brew installed packages will take precedence.
+    if which brew &>/dev/null; then
+        # Is there a better way to do this?
+        path=$(echo $PATH \
+            |sed -E 's|^/usr/local/bin:||' \
+            |sed -E 's|:/usr/local/bin$||' \
+            |sed -E 's|:?/usr/local/bin:|:|' \
+            |sed -E 's|:/usr/local/bin:?|:|')
+        PATH="/usr/local/bin:${path}"
+
+        export HOMEBREW_GITHUB_API_TOKEN=4f5c0b3fbdc3e00f865bb7850ab947be03ae461f
+    fi
 fi
 
 export CLICOLOR=1
+export EDITOR=vim
+
 set -o vi
 
 # }}}
@@ -79,8 +107,9 @@ alias c='clear'
 # Note that there are functions below for grepping history.
 alias h='history'
 alias hl='history |less'
+alias hfl='cat $HISTFILE |less'
 
-if which vagrant >> /dev/null; then
+if which vagrant &>/dev/null; then
     alias vup='vagrant up'
     alias vd='vagrant destroy'
     alias vdf='vagrant destroy --force'
@@ -89,10 +118,65 @@ if which vagrant >> /dev/null; then
     alias vst='vagrant status'
     alias vsnap='vagrant snapshot'
 fi
+
+# }}}
+
+# Tool environments {{{
+
+# For now, I think jenv is better for java than asdf. Mostly because jenv
+# leaves me in control of installing whatever jdks/jres I want and then simply
+# telling jenv about them.
+which jenv &>/dev/null && eval "$(jenv init -)"
+
+# This must come _after_ brew PATH manipulations.
+if which asdf &>/dev/null; then
+
+    # Ideally, we'd do this...
+    # source $(brew --prefix asdf)/asdf.sh
+    # source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+    # The 'brew --prefix asdf' calls are way to slow, however.
+    source /usr/local/opt/asdf/asdf.sh
+    source /usr/local/opt/asdf/etc/bash_completion.d/asdf.bash
+
+    # The 'asdf.sh' that we just source actually creates `asdf` as a
+    # function. Therfore, we can't directly wrap it in a function called
+    # `asdf`, so we'll do this little wrapper/alias trick.
+    function asdf_() {
+        if echo "$@" |grep '^install \+python' &>/dev/null; then
+            echo "Use 'python-build <version> ~/.asdf/installs/python/...'"
+        elif echo "$@" |grep '^install \+ruby' &>/dev/null; then
+            echo "Use 'ruby-build <version> ~/.asdf/installs/ruby/...'"
+        else
+            command asdf "$@"
+        fi
+    }
+
+    alias asdf='asdf_'
+fi
+
+if which pyenv &>/dev/null; then
+    function pyenv() {
+        echo "Use 'asdf' to manage python versions (via 'python-build')..."
+    }
+fi
+
+if which rbenv &>/dev/null; then
+    function rbenv() {
+        echo "Use 'asdf' to manage ruby versions (via 'ruby-build')..."
+    }
+fi
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+if which fzf &>/dev/null; then
+hfe() { 
+    output=$(cat ~/.bash_history |fzf --no-sort --tac) && eval $output 
+}
+fi
 # }}}
 
 # Kubernetes Tooling {{{
-if which kubectl >> /dev/null; then
+if which kubectl &>/dev/null; then
 
     alias k='kubectl'
     source <(kubectl completion bash)
@@ -101,12 +185,12 @@ if which kubectl >> /dev/null; then
     # NOTE: `$ complete |grep <comman>` to get 
     # current completion for <command>.
 
-    if which kubectx >> /dev/null; then
+    if which kubectx &>/dev/null; then
         alias kx='kubectx'
         complete -F _kube_contexts kx
     fi
 
-    if which kubens  >> /dev/null; then
+    if which kubens &>/dev/null; then
         alias kn='kubens' 
         complete -F _kube_namespaces kn
     fi
@@ -286,7 +370,7 @@ fi
 
 # NOTE!!! Because we're messing with the prompt here, this needs to come before
 # the visual prompt modifications we're making (one observed issue was
-# powerline-go never showing any errors becuase)
+# powerline-go never showing any errors).
 
 shopt -s histappend
 
@@ -294,7 +378,7 @@ HISTSIZE=5000
 HISTFILESIZE=100000
 HISTCONTROL=ignorespace:ignoredups:erasedups
 
-# Don't add to history:
+# Don't add the following to history:
 # - history commands (really important for csshX)
 # - non-arg ls commands
 # - echo to base64 or json, which can oftentimes be _really_ long lines (which
@@ -314,7 +398,22 @@ _bash_history_sync() {
   # specified size.  Without this, file will only be truncated when the shell
   # is closed.
   HISTFILESIZE=$HISTFILESIZE    
+}                   
+
+# Even though we've specified 'erasedups' in HISTCONTROL, it doesn't work
+# becauase 'history -a' (which we're using to to append to the history file)
+# doesn't trigger erasing duplicates (not sure why). Calling this via the 
+# EXIT trap below will force a dedup.
+# TODO: Make this a cronjob?
+function deduphistory {
+    echo 'DEDUP_HISTORY...'
+    sleep .5
+    local tmp_hist=$(mktemp)
+    tac $HISTFILE |awk '!x[$0]++' |tac > $tmp_hist
+    mv $tmp_hist $HISTFILE
 }
+
+trap deduphistory EXIT
 
 PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
 
@@ -326,19 +425,16 @@ PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
 # If a brew installation of bash-git-prompt exits, well use that. If not...
 # We'll cobble together our own prompt that includes the following:
 #
-# - timestamp 
-# - PWD
-#   - home directory (HOME) is replaced with a ~
-#   - last pwdmaxlen characters of the PWD are displayed
-#   - leading partial directory names replaced with ".." if path too long
-# - username@host 
-# 
-# Note that the prompt is split across two lines. That's not really my
-# preference, but long prompts seem to hose up command recall when using
-# 'set -o vi'.
-#
-# IMPORTANT! Do this BEFORE the history stuff as that attaches itself to the
-# prompt as well.
+#   - timestamp 
+#   - PWD
+#     - home directory (HOME) is replaced with a ~
+#     - last pwdmaxlen characters of the PWD are displayed
+#     - leading partial directory names replaced with ".." if path too long
+#   - username@host 
+#   
+#   Note that this prompt is split across two lines. That's not really my
+#   preference, but long prompts seem to hose up command recall when using 
+#   'set -o vi'.
 #
 
 if [ -n "${VIM}" ]; then
@@ -346,10 +442,10 @@ if [ -n "${VIM}" ]; then
     :
 
 elif [[ ! "${PS4}" =~ ^\+[[:space:]]*$ ]]; then
-    # We've specifically set PS4, let's not mess it up with PS1.
+    # PS4 has been set, let's not mess it up with PS1.
     :
 
-elif which powerline-go >/dev/null; then
+elif which powerline-go &>/dev/null; then
 
     function _update_ps1() {
         #
@@ -496,15 +592,12 @@ fi
 
 hg()                                                                             
 {                                                                                
-    GREP=grep                                                                    
-    MYPIPE="|"                                                                   
     CMD=                                                                         
-    for i in "$@"                                                                
-    do                                                                           
+    for i in "$@"; do                                                                           
       if [[ -z $CMD ]]; then                                                     
-        CMD="history $MYPIPE $GREP $i |grep -v '^[0-9]\+ \+hf\?g '"                                           
+        CMD="history |grep $i |grep -v '^[0-9]\+ \+hf\?g '"                                           
       else                                                                       
-        CMD="$CMD $MYPIPE $GREP $i"                                              
+        CMD="$CMD | grep $i"                                              
       fi                                                                         
     done                                                                         
     eval $CMD                                                                    
@@ -512,15 +605,12 @@ hg()
 
 hfg()                                                                             
 {                                                                                
-    GREP=grep                                                                    
-    MYPIPE="|"                                                                   
     CMD=                                                                         
-    for i in "$@"                                                                
-    do                                                                           
+    for i in "$@"; do                                                                           
       if [[ -z $CMD ]]; then                                                     
-        CMD="cat $HISTFILE $MYPIPE $GREP $i |grep -v '^hf\?g '"                                           
+        CMD="cat $HISTFILE |grep $i |grep -v '^hf\?g '"                                           
       else                                                                       
-        CMD="$CMD $MYPIPE $GREP $i"                                              
+        CMD="$CMD |grep $i"                                              
       fi                                                                         
     done                                                                         
     eval $CMD                                                                    
@@ -551,7 +641,7 @@ complete -o default -o nospace -F _sshcomplete ssh
 # give us the opportunity to customize things for specific boxes, sites, etc.
 #
 
-if [ -f "$HOME/.bashrc.local" ]; then
+if [ -r "$HOME/.bashrc.local" ]; then
     . "$HOME/.bashrc.local"
 fi
 # }}}
