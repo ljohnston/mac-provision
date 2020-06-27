@@ -1,0 +1,72 @@
+[aws]
+disabled = true
+
+[conda]
+disabled = true
+
+[crystal]
+disabled = true
+
+[directory]
+style = "bold green"
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
+
+[haskell]
+disabled = true
+
+[julia]
+disabled = true
+
+[kubernetes]
+disabled = false
+symbol = '⎈ '
+style = 'cyan'
+
+[nim]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[php]
+disabled = true
+
+[purescript]
+disabled = true
+
+[python]
+scan_for_pyfiles = false
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true
+
+[singularity]
+disabled = true
+
+[time]
+disabled = false
+
+[zig]
+disabled = true
+
+

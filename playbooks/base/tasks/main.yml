@@ -167,11 +167,29 @@
     dest: '~/.profile'
     state: 'link'
 
+- name: '.zshenv symlink'
+  file: 
+    src: '{{ playbook_dir }}/../dotfiles/.zshenv'
+    dest: '~/.zshenv'
+    state: 'link'
+
+- name: '.zprofile symlink'
+  file: 
+    src: '{{ playbook_dir }}/../dotfiles/.zprofile'
+    dest: '~/.zprofile'
+    state: 'link'
+
+- name: '.zshrc symlink'
+  file: 
+    src: '{{ playbook_dir }}/../dotfiles/.zshrc'
+    dest: '~/.zshrc'
+    state: 'link'
+
 #
 # bash shell
 #
 
-- name: add homwbrew bash to /etc/shells
+- name: 'add homwbrew bash to /etc/shells'
   lineinfile: 
     path: '/etc/shells' 
     line: '/usr/local/bin/bash' 
@@ -183,6 +201,22 @@
     name: '{{ ansible_user_id }}' 
     shell: '/usr/local/bin/bash'
   become: 'yes'
+
+#
+# Starship prompt config.
+#
+
+- name: 'create ~/.config'
+  file:
+    path: '~/.config'
+    state: 'directory'
+    mode: '0700'
+
+- name: 'starship.toml symlink'
+  file: 
+    src: '{{ playbook_dir }}/../config/starship.toml'
+    dest: '~/.config/starship.toml'
+    state: 'link'
 
 #
 # My vim config.

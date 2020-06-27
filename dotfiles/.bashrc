@@ -44,8 +44,6 @@
 
 # }}}
 
-echo .bashrc
-
 # General {{{
 
 #
@@ -73,7 +71,8 @@ if [[ $OSTYPE == *darwin* ]]; then
             |sed -E 's|:/usr/local/bin:?|:|')
         PATH="/usr/local/bin:${path}"
 
-        export HOMEBREW_GITHUB_API_TOKEN=4f5c0b3fbdc3e00f865bb7850ab947be03ae461f
+        # I get hate mail from GitHub if I commit this... do I really need it?
+        # export HOMEBREW_GITHUB_API_TOKEN=4f5c0b3fbdc3e00f865bb7850ab947be03ae461f
     fi
 fi
 
@@ -123,24 +122,13 @@ fi
 
 # Tool environments {{{
 
-# For now, I think jenv is better for java than asdf. Mostly because jenv
-# leaves me in control of installing whatever jdks/jres I want and then simply
-# telling jenv about them.
-which jenv &>/dev/null && eval "$(jenv init -)"
-
 # This must come _after_ brew PATH manipulations.
 if which asdf &>/dev/null; then
-
-    # Ideally, we'd do this...
-    # source $(brew --prefix asdf)/asdf.sh
-    # source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
-    # The 'brew --prefix asdf' calls are way to slow, however.
-    source /usr/local/opt/asdf/asdf.sh
-    source /usr/local/opt/asdf/etc/bash_completion.d/asdf.bash
 
     # The 'asdf.sh' that we just source actually creates `asdf` as a
     # function. Therfore, we can't directly wrap it in a function called
     # `asdf`, so we'll do this little wrapper/alias trick.
+    # NOTE: This function _must_ come before the source'ings below.
     function asdf_() {
         if echo "$@" |grep '^install \+python' &>/dev/null; then
             echo "Use 'python-build <version> ~/.asdf/installs/python/...'"
@@ -152,7 +140,20 @@ if which asdf &>/dev/null; then
     }
 
     alias asdf='asdf_'
+
+    # Ideally, we'd do this...
+    # source $(brew --prefix asdf)/asdf.sh
+    # source $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+    # The 'brew --prefix asdf' calls are way to slow, however.
+    source /usr/local/opt/asdf/asdf.sh
+    source /usr/local/opt/asdf/etc/bash_completion.d/asdf.bash
 fi
+
+# For now, I think jenv is better for java than asdf. Mostly because jenv
+# leaves me in control of installing whatever jdks/jres I want and then simply
+# telling jenv about them. 
+# Of course, I also have sdkman. TODO: Sort this...
+which jenv &>/dev/null && eval "$(jenv init -)"
 
 if which pyenv &>/dev/null; then
     function pyenv() {
@@ -166,6 +167,7 @@ if which rbenv &>/dev/null; then
     }
 fi
 
+# I didn't install fzf via brew, but maybe a I should.
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 if which fzf &>/dev/null; then
@@ -194,6 +196,10 @@ if which kubectl &>/dev/null; then
         alias kn='kubens' 
         complete -F _kube_namespaces kn
     fi
+
+    # This kstats alias from here:
+    # https://github.com/kubernetes/kubernetes/issues/17512
+    alias kstats='join -a1 -a2 -o 0,1.2,1.3,2.2,2.3,2.4,2.5, -e '"'"'<none>'"'"' <(kubectl top pods) <(kubectl get pods -o custom-columns=NAME:.metadata.name,"CPU_REQ(cores)":.spec.containers[*].resources.requests.cpu,"MEMORY_REQ(bytes)":.spec.containers[*].resources.requests.memory,"CPU_LIM(cores)":.spec.containers[*].resources.limits.cpu,"MEMORY_LIM(bytes)":.spec.containers[*].resources.limits.memory) | column -t -s'"'"' '"'" 
 
     #
     # FUNCTION
@@ -250,15 +256,15 @@ if which kubectl &>/dev/null; then
         context=${1}
 
         if [ -z "${context}" ]; then
-            [ "${KUBECONFIG}" == "" ] && echo "KUBECONFIG not set" || echo $KUBECONFIG
+            [ "${KUBECONFIG}" = "" ] && echo "KUBECONFIG not set" || echo $KUBECONFIG
 
-        elif [ "${context}" == '-' ]; then
+        elif [ "${context}" = '-' ]; then
             unset KUBECONFIG
 
-        elif [ "${context}" == 'all' ]; then
+        elif [ "${context}" = 'all' ]; then
             export KUBECONFIG=$(__kc_all)
 
-        elif [ "${context}" == 'ls' ]; then
+        elif [ "${context}" = 'ls' ]; then
             local contexts kubeconfigs
             contexts=$(__kc_configcontexts)
             kubeconfigs=$(__kc_kubeconfigs)
@@ -386,18 +392,27 @@ HISTCONTROL=ignorespace:ignoredups:erasedups
 HISTIGNORE='history:history *:h:h *:hl:ls:ll:la:echo *base64*:echo *json_pp*'
 
 history() {
-  _bash_history_sync
-  builtin history "$@"
+    _bash_history_sync
+    builtin history "$@"
 }
 
 _bash_history_sync() {
-  # Append session history to history file.
-  builtin history -a            
+    # Append session history to history file.
+    builtin history -a            
 
-  # Resetting HISTFILESIZE will force history file to be truncated to the
-  # specified size.  Without this, file will only be truncated when the shell
-  # is closed.
-  HISTFILESIZE=$HISTFILESIZE    
+    # Resetting HISTFILESIZE will force history file to be truncated to the
+    # specified size.  Without this, file will only be truncated when the shell
+    # is closed.
+    HISTFILESIZE=$HISTFILESIZE    
+
+    # I've got a bug somewhere that's truncating my history file to 5000 lines.
+    # Maybe this will help us find it.
+    # TODO: Delete this.
+    if [ "$(wc -l ~/.bash_history |awk '{ print $1 }')" -le 5000 ]; then
+        echo ''
+        echo "$HISTFILE has been truncated to 5000 lines..."
+        sleep 60
+    fi
 }                   
 
 # Even though we've specified 'erasedups' in HISTCONTROL, it doesn't work
@@ -406,8 +421,6 @@ _bash_history_sync() {
 # EXIT trap below will force a dedup.
 # TODO: Make this a cronjob?
 function deduphistory {
-    echo 'DEDUP_HISTORY...'
-    sleep .5
     local tmp_hist=$(mktemp)
     tac $HISTFILE |awk '!x[$0]++' |tac > $tmp_hist
     mv $tmp_hist $HISTFILE
@@ -444,6 +457,9 @@ if [ -n "${VIM}" ]; then
 elif [[ ! "${PS4}" =~ ^\+[[:space:]]*$ ]]; then
     # PS4 has been set, let's not mess it up with PS1.
     :
+
+elif which starship &>/dev/null; then
+    eval "$(starship init bash)"
 
 elif which powerline-go &>/dev/null; then
 
