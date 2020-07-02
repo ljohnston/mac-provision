@@ -360,7 +360,7 @@ fi
 # History {{{
 
 #
-# Intent here is: 
+# Intent here is:
 # - Unlimited (or effectively unlimited) history.
 # - History from current shell _not_ available to concurrently running shells.
 # - History from the current shell available to new shells started while the
@@ -398,12 +398,12 @@ history() {
 
 _bash_history_sync() {
     # Append session history to history file.
-    builtin history -a            
+    builtin history -a
 
     # Resetting HISTFILESIZE will force history file to be truncated to the
     # specified size.  Without this, file will only be truncated when the shell
     # is closed.
-    HISTFILESIZE=$HISTFILESIZE    
+    HISTFILESIZE=$HISTFILESIZE
 
     # I've got a bug somewhere that's truncating my history file to 5000 lines.
     # Maybe this will help us find it.
@@ -413,7 +413,7 @@ _bash_history_sync() {
         echo "$HISTFILE has been truncated to 5000 lines..."
         sleep 60
     fi
-}                   
+}
 
 # Even though we've specified 'erasedups' in HISTCONTROL, it doesn't work
 # becauase 'history -a' (which we're using to to append to the history file)
@@ -429,6 +429,38 @@ function deduphistory {
 trap deduphistory EXIT
 
 PROMPT_COMMAND="_bash_history_sync;$PROMPT_COMMAND"
+
+# }}}
+
+# History Grep {{{
+
+# History grep that builds up final command to grep for multiple
+# items in the command history.
+# Usage: hg <string> <string> <string> ...
+
+hg() {
+    local cmd
+    for i in "$@"; do
+      if [[ -z $cmd ]]; then
+        cmd="history |grep $i |grep -v '^[0-9]\+ \+hf\?g '"
+      else
+        cmd="$cmd | grep $i"
+      fi
+    done
+    eval $cmd
+}
+
+hfg() {
+    local cmd
+    for i in "$@"; do
+      if [[ -z $cmd ]]; then
+        cmd="cat $HISTFILE |grep $i |grep -v '^hf\?g '"
+      else
+        cmd="$cmd |grep $i"
+      fi
+    done
+    eval $cmd
+}
 
 # }}}
 
@@ -597,40 +629,6 @@ else
       unset bash_prompt
     fi
 fi
-
-# }}}
-
-# History Grep {{{
-
-## History grep that builds up final command to grep for multiple                
-## items in the command history.                                                 
-## Usage: hg <string> <string> <string> ...                                      
-
-hg()                                                                             
-{                                                                                
-    CMD=                                                                         
-    for i in "$@"; do                                                                           
-      if [[ -z $CMD ]]; then                                                     
-        CMD="history |grep $i |grep -v '^[0-9]\+ \+hf\?g '"                                           
-      else                                                                       
-        CMD="$CMD | grep $i"                                              
-      fi                                                                         
-    done                                                                         
-    eval $CMD                                                                    
-}	
-
-hfg()                                                                             
-{                                                                                
-    CMD=                                                                         
-    for i in "$@"; do                                                                           
-      if [[ -z $CMD ]]; then                                                     
-        CMD="cat $HISTFILE |grep $i |grep -v '^hf\?g '"                                           
-      else                                                                       
-        CMD="$CMD |grep $i"                                              
-      fi                                                                         
-    done                                                                         
-    eval $CMD                                                                    
-}	
 
 # }}}
 

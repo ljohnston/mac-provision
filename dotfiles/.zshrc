@@ -2,6 +2,19 @@
 # vim: set sw=4 ts=4 sts=4 et tw=79 foldlevel=0 foldmethod=marker foldmarker={{{,}}}:
 # }}}
 
+# Profiling {{{
+# Haven't done any profiling yet, but this might be a good link:
+# https://kevin.burke.dev/kevin/profiling-zsh-startup-time/
+# https://medium.com/@jzelinskie/please-dont-ship-binaries-with-shell-completion-as-commands-a8b1bcb8a0d0
+# PROFILE_STARTUP=true
+# if [[ "$PROFILE_STARTUP" == true ]]; then
+#     # http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html
+#     PS4=$'%D{%M%S%.} %N:%i> '
+#     exec 3>&2 2>$HOME/tmp/startlog.$$
+#     setopt xtrace prompt_subst
+# fi
+# }}}
+
 # General {{{
 
 #
@@ -89,6 +102,11 @@ if which asdf &>/dev/null; then
 
     alias asdf='asdf_'
 
+    # Ideally, we'd do this...
+    # source $(brew --prefix asdf)/asdf.sh
+    # The 'brew --prefix asdf' calls are way to slow, however.
+    source $(brew --prefix)/opt/asdf/asdf.sh
+
     # Make asdf completions work with our function.
     compdef asdf_=asdf
 fi
@@ -123,6 +141,7 @@ fi
 # }}}
 
 # Kubernetes Tooling {{{
+
 if which kubectl &>/dev/null; then
 #
     alias k='kubectl'
@@ -283,7 +302,7 @@ if which kubectl &>/dev/null; then
         #     completions+=("${kubeconfigs[*]}")
         # fi
         # compadd $(echo $completions)
-        
+
         compadd $(__kc_configcontexts) $(__kc_kubeconfigs)
     }
 
@@ -306,16 +325,58 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=100000
 
+HISTORY_IGNORE='(history|history *|h|h *|hl|echo *base64*|echo *json_pp*)'
+
 setopt incappendhistory          # Write to the history file immediately, not when the shell exits. 
-setopt histexpiredupsfirst       # Expire duplicate entries first when trimming history.
 setopt histignoredups            # Don't record an entry that was just recorded again.
 setopt histignorealldups         # Delete old recorded entry if new entry is a duplicate.
 setopt histfindnodups            # Do not display a line previously found.
 setopt histignorespace           # Don't record an entry starting with a space.
-setopt histsavenodups            # Don't write duplicate entries in the history file.
 setopt histreduceblanks          # Remove superfluous blanks before recording entry.
 
+# Had this, but it increases shell startup time something terrible.
+# Not really sure I want it anyway.
+# setopt histexpiredupsfirst       # Expire duplicate entries first when trimming history.
+
+# Not sure about this. A contextual history file can be a good thing.
+#setopt histsavenodups           # Don't write duplicate entries in the history file.
+
 unsetopt sharehistory            # Don't share history between all sessions.
+
+# 'history' in zsh only shows the last 16 lines... fix it.
+alias history='history 1'
+
+# }}}
+
+# History Grep {{{
+
+# History grep that builds up final command to grep for multiple
+# items in the command history.
+# Usage: hg <string> <string> <string> ...
+
+hg() {
+    local cmd
+    for i in "$@"; do
+      if [[ -z $cmd ]]; then
+        cmd="history |grep $i |grep -v '^[0-9]\+ \+hf\?g '"
+      else
+        cmd="$cmd | grep $i"
+      fi
+    done
+    eval $cmd
+}
+
+hfg() {
+    local cmd
+    for i in "$@"; do
+      if [[ -z $cmd ]]; then
+        cmd="cat $HISTFILE |grep $i |grep -v '^hf\?g '"
+      else
+        cmd="$cmd |grep $i"
+      fi
+    done
+    eval $cmd
+}
 
 # }}}
 
@@ -348,7 +409,8 @@ fi
 # vi command line editing
 bindkey -v
 
-# For some reason, the vicmd keymap defaults these to up/down-line-or-history.
+# For some reason, the vicmd keymap defaults these to up/down-line-or-history,
+# which leaves the cursor at the end of the line (very annoying).
 bindkey -a k vi-up-line-or-history
 bindkey -a j vi-down-line-or-history
 
