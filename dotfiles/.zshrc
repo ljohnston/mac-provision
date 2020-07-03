@@ -50,6 +50,9 @@ fi
 export CLICOLOR=1
 export EDITOR=vim
 
+source ~/.zinit/bin/zinit.zsh
+zinit light zdharma/fast-syntax-highlighting
+
 # Initialze completion.
 autoload -U compinit && compinit
 # }}}
