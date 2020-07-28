@@ -50,11 +50,6 @@ fi
 export CLICOLOR=1
 export EDITOR=vim
 
-source ~/.zinit/bin/zinit.zsh
-zinit light zdharma/fast-syntax-highlighting
-
-# Initialze completion.
-autoload -U compinit && compinit
 # }}}
 
 # Aliases {{{
@@ -85,14 +80,213 @@ fi
 
 # }}}
 
+# {{{ History
+
+#
+# I want:
+# - Unlimited (or effectively unlimited) history.
+# - History from current shell _not_ available to concurrently running shells.
+# - History from the current shell available to new shells started while the
+#   current shell is still active (and after it's closed obviously).
+#
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=100000
+
+HISTORY_IGNORE='(history|history *|h|h *|hl|echo *base64*|echo *json_pp*)'
+
+setopt incappendhistory          # Write to the history file immediately, not when the shell exits. 
+setopt histignoredups            # Don't record an entry that was just recorded again.
+setopt histignorealldups         # Delete old recorded entry if new entry is a duplicate.
+setopt histfindnodups            # Do not display a line previously found.
+setopt histignorespace           # Don't record an entry starting with a space.
+setopt histreduceblanks          # Remove superfluous blanks before recording entry.
+
+# Had this, but it increases shell startup time something terrible.
+# Not really sure I want it anyway.
+# setopt histexpiredupsfirst       # Expire duplicate entries first when trimming history.
+
+# Not sure about this. A contextual history file can be a good thing.
+#setopt histsavenodups           # Don't write duplicate entries in the history file.
+
+unsetopt sharehistory            # Don't share history between all sessions.
+
+# 'history' in zsh only shows the last 16 lines... fix it.
+alias history='history 1'
+
+# }}}
+
+# History Grep {{{
+
+# History grep that builds up final command to grep for multiple
+# items in the command history.
+# Usage: hg <string> <string> <string> ...
+
+hg() {
+    local cmd
+    for i in "$@"; do
+      if [[ -z $cmd ]]; then
+        cmd="history |grep $i |grep -v '^[0-9]\+ \+hf\?g '"
+      else
+        cmd="$cmd | grep $i"
+      fi
+    done
+    eval $cmd
+}
+
+hfg() {
+    local cmd
+    for i in "$@"; do
+      if [[ -z $cmd ]]; then
+        cmd="cat $HISTFILE |grep $i |grep -v '^hf\?g '"
+      else
+        cmd="$cmd |grep $i"
+      fi
+    done
+    eval $cmd
+}
+
+# }}}
+
+# Prompt {{{
+
+if [ -n "${VIM}" ]; then
+    # We're in a VIM shell (i.e. :shell).
+    :
+
+elif which starship &>/dev/null; then
+    eval "$(starship init zsh)"
+
+fi
+
+# }}}
+
+# {{{ zsh
+# This section needs to come after prompt customizations or there seems to be
+# some potential for strange behavior (e.g. starship prompt will disable any
+# widgets added to 'add-zle-hook-widget').
+
+# Must source this before calling 'compinit'.
+source ~/.zinit/bin/zinit.zsh
+
+# Initialze completion.
+autoload -U compinit && compinit
+
+zinit light zdharma/fast-syntax-highlighting
+zle_highlight=('paste:none')
+
+zinit light zsh-users/zsh-completions
+
+# Unbind stupid default keymaps.
+bindkey -r "^L"   # clear screen
+
+# So I like the idea of this plugin, but it messes with vim mode (and my head).
+# I think if I just disabled it anytime we're in vicmd mode, that might make it
+# usable. 
+
+# This isn't working as expected. Issues seem to be related to the fact that I
+# can't clear the current suggestion, which would be the expected experience if
+# the suggestions are disabled. It's even worse though, as having the
+# suggestion still show up on the line messes with expect vi mode behavior.
+
+# zinit light zsh-users/zsh-autosuggestions
+# bindkey '^L' autosuggest-accept
+#
+# autoload -Uz add-zle-hook-widget
+#
+# This should work...
+# zle_autosuggest_state() {
+#     # echo $KEYMAP
+#     local left
+#     left=$LBUFFER
+#     if [ $KEYMAP = vicmd ]; then
+#         zle autosuggest-disable
+#         echo ${left} >/tmp/foo
+#         BUFFER="${left}"
+#         RBUFFER=""
+#         # zle autosuggest-clear
+#         zle -R
+#         # zle kill-line
+#     else
+#         # echo $KEYMAP
+#         echo 'else' >>/tmp/foo
+#         zle autosuggest-enable
+#     fi
+# }
+#
+# zle -N zle_autosuggest_state
+# add-zle-hook-widget -Uz line-init zle_autosuggest_state
+# add-zle-hook-widget -Uz keymap-select zle_autosuggest_state
+
+# }}}
+
+# {{{ vim mode 
+
+# Found this at:  https://github.com/softmoth/zsh-vim-mode/blob/master/zsh-vim-mode.plugin.zsh
+# Might be useful...
+#     autoload -Uz surround
+#     zle -N delete-surround surround
+#     zle -N change-surround surround
+#     zle -N add-surround surround
+#     vim-mode-bindkey vicmd  -- change-surround cs
+#     vim-mode-bindkey vicmd  -- delete-surround ds
+#     vim-mode-bindkey vicmd  -- add-surround    ys
+#     vim-mode-bindkey visual -- add-surround    S
+
+# vi command line editing
+bindkey -v
+
+# For some reason, the vicmd keymap defaults these to up/down-line-or-history,
+# which leaves the cursor at the end of the line (very annoying).
+bindkey -a k vi-up-line-or-history
+bindkey -a j vi-down-line-or-history
+
+# This is mapped to vi-backward-delete-char which you would think would be
+# correct. The problem is that in zsh's vi mode, deleting chars after entering
+# insert mode will only allow you to delete chars entered while _in_ that
+# insert mode session.
+bindkey "^?" backward-delete-char
+
+_vi_history_search_backward() {
+    zle vi-history-search-backward
+    zle vi-beginning-of-line
+}
+
+_vi_repeat_search() {
+    zle vi-repeat-search
+    zle vi-beginning-of-line
+}
+
+_vi_rev_repeat_search() {
+    zle vi-rev-repeat-search
+    zle vi-beginning-of-line
+}
+
+zle -N _vi_history_search_backward
+zle -N _vi_repeat_search
+zle -N _vi_rev_repeat_search
+
+bindkey -M vicmd "/" _vi_history_search_backward
+bindkey -M vicmd "n" _vi_repeat_search
+bindkey -M vicmd "N" _vi_rev_repeat_search
+
+# }}}
+
 # Tool environments {{{
 
 # This must come _after_ brew PATH manipulations.
 if which asdf &>/dev/null; then
 
+    # Ideally, we'd do this...
+    # source $(brew --prefix asdf)/asdf.sh
+    # The 'brew --prefix asdf' calls are way to slow, however.
+    source $(brew --prefix)/opt/asdf/asdf.sh
+
     # The 'asdf.sh' that we just source actually creates `asdf` as a
     # function. Therfore, we can't directly wrap it in a function called
-    # `asdf`, so we'll do this little wrapper/alias trick.
+    # `asdf`, so we'll do this little wrapper/alias trick. 
+    # NOTE: this _must_ come after the above 'source ...'.
     function asdf_() {
         if echo "$@" |grep '^install \+python' &>/dev/null; then
             echo "Use 'python-build <version> ~/.asdf/installs/python/...'"
@@ -104,11 +298,6 @@ if which asdf &>/dev/null; then
     }
 
     alias asdf='asdf_'
-
-    # Ideally, we'd do this...
-    # source $(brew --prefix asdf)/asdf.sh
-    # The 'brew --prefix asdf' calls are way to slow, however.
-    source $(brew --prefix)/opt/asdf/asdf.sh
 
     # Make asdf completions work with our function.
     compdef asdf_=asdf
@@ -131,6 +320,9 @@ if which rbenv &>/dev/null; then
         echo "Use 'asdf' to manage ruby versions (via 'ruby-build')..."
     }
 fi
+
+# Helm
+which helm &>/dev/null && source <(helm completion zsh)
 
 # I didn't install fzf via brew, but maybe a I should.
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -311,140 +503,6 @@ if which kubectl &>/dev/null; then
 
     compdef _kc kc
 fi
-
-# }}}
-
-# {{{ History
-
-#
-# I want:
-# - Unlimited (or effectively unlimited) history.
-# - History from current shell _not_ available to concurrently running shells.
-# - History from the current shell available to new shells started while the
-#   current shell is still active (and after it's closed obviously).
-#
-
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=100000
-
-HISTORY_IGNORE='(history|history *|h|h *|hl|echo *base64*|echo *json_pp*)'
-
-setopt incappendhistory          # Write to the history file immediately, not when the shell exits. 
-setopt histignoredups            # Don't record an entry that was just recorded again.
-setopt histignorealldups         # Delete old recorded entry if new entry is a duplicate.
-setopt histfindnodups            # Do not display a line previously found.
-setopt histignorespace           # Don't record an entry starting with a space.
-setopt histreduceblanks          # Remove superfluous blanks before recording entry.
-
-# Had this, but it increases shell startup time something terrible.
-# Not really sure I want it anyway.
-# setopt histexpiredupsfirst       # Expire duplicate entries first when trimming history.
-
-# Not sure about this. A contextual history file can be a good thing.
-#setopt histsavenodups           # Don't write duplicate entries in the history file.
-
-unsetopt sharehistory            # Don't share history between all sessions.
-
-# 'history' in zsh only shows the last 16 lines... fix it.
-alias history='history 1'
-
-# }}}
-
-# History Grep {{{
-
-# History grep that builds up final command to grep for multiple
-# items in the command history.
-# Usage: hg <string> <string> <string> ...
-
-hg() {
-    local cmd
-    for i in "$@"; do
-      if [[ -z $cmd ]]; then
-        cmd="history |grep $i |grep -v '^[0-9]\+ \+hf\?g '"
-      else
-        cmd="$cmd | grep $i"
-      fi
-    done
-    eval $cmd
-}
-
-hfg() {
-    local cmd
-    for i in "$@"; do
-      if [[ -z $cmd ]]; then
-        cmd="cat $HISTFILE |grep $i |grep -v '^hf\?g '"
-      else
-        cmd="$cmd |grep $i"
-      fi
-    done
-    eval $cmd
-}
-
-# }}}
-
-# Prompt {{{
-
-if [ -n "${VIM}" ]; then
-    # We're in a VIM shell (i.e. :shell).
-    :
-
-elif which starship &>/dev/null; then
-    eval "$(starship init zsh)"
-
-fi
-
-# }}}
-
-# {{{ vim mode 
-
-# Found this at:  https://github.com/softmoth/zsh-vim-mode/blob/master/zsh-vim-mode.plugin.zsh
-# Might be useful...
-#     autoload -Uz surround
-#     zle -N delete-surround surround
-#     zle -N change-surround surround
-#     zle -N add-surround surround
-#     vim-mode-bindkey vicmd  -- change-surround cs
-#     vim-mode-bindkey vicmd  -- delete-surround ds
-#     vim-mode-bindkey vicmd  -- add-surround    ys
-#     vim-mode-bindkey visual -- add-surround    S
-
-# vi command line editing
-bindkey -v
-
-# For some reason, the vicmd keymap defaults these to up/down-line-or-history,
-# which leaves the cursor at the end of the line (very annoying).
-bindkey -a k vi-up-line-or-history
-bindkey -a j vi-down-line-or-history
-
-# This is mapped to vi-backward-delete-char which you would think would be
-# correct. The problem is that in zsh's vi mode, deleting chars after entering
-# insert mode will only allow you to delete chars entered while _in_ that
-# insert mode session.
-bindkey "^?" backward-delete-char
-
-_vi_history_search_backward() {
-    zle vi-history-search-backward
-    zle vi-beginning-of-line
-}
-
-_vi_repeat_search() {
-    zle vi-repeat-search
-    zle vi-beginning-of-line
-}
-
-_vi_rev_repeat_search() {
-    zle vi-rev-repeat-search
-    zle vi-beginning-of-line
-}
-
-zle -N _vi_history_search_backward
-zle -N _vi_repeat_search
-zle -N _vi_rev_repeat_search
-
-bindkey -M vicmd "/" _vi_history_search_backward
-bindkey -M vicmd "n" _vi_repeat_search
-bindkey -M vicmd "N" _vi_rev_repeat_search
 
 # }}}
 
