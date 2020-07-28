@@ -22,6 +22,12 @@ disabled = true
 [erlang]
 disabled = true
 
+[git_status]
+modified_count.enabled = true
+staged_count.enabled = true
+untracked_count.enabled = true
+show_sync_count = true
+
 [haskell]
 disabled = true
 
