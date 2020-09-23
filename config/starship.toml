@@ -22,6 +22,10 @@ disabled = true
 [erlang]
 disabled = true
 
+[git_commit]
+# This plugin is SLOWWWWWWWW!
+disabled = true
+
 [git_status]
 modified_count.enabled = true
 staged_count.enabled = true
