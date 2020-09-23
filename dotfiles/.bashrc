@@ -167,13 +167,9 @@ if which rbenv &>/dev/null; then
     }
 fi
 
-# I didn't install fzf via brew, but maybe a I should.
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 if which fzf &>/dev/null; then
-hfe() { 
-    output=$(cat ~/.bash_history |fzf --no-sort --tac) && eval $output 
-}
+    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 fi
 # }}}
 

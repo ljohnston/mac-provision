@@ -18,6 +18,15 @@
     name: 'asdf' 
     state: 'latest'
 
+- name: 'install bash'
+  homebrew:
+    name: 'bash' 
+    state: 'latest'
+
+- name: 'install fzf'
+  homebrew:
+    name: 'fzf' 
+    state: 'latest'
 #
 # Even with 'asdf' there are some similiar tools I want to install:
 #
@@ -35,11 +44,6 @@
 - name: 'install rbenv'
   homebrew: 
     name: 'rbenv' 
-    state: 'latest'
-
-- name: 'install bash'
-  homebrew:
-    name: 'bash' 
     state: 'latest'
 
 - name: 'install ripgrep'

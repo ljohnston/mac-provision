@@ -157,7 +157,6 @@ if [ -n "${VIM}" ]; then
 
 elif which starship &>/dev/null; then
     eval "$(starship init zsh)"
-
 fi
 
 # }}}
@@ -179,45 +178,77 @@ zle_highlight=('paste:none')
 zinit light zsh-users/zsh-completions
 
 # Unbind stupid default keymaps.
-bindkey -r "^L"   # clear screen
+bindkey -r '^L'   # clear screen
 
 # So I like the idea of this plugin, but it messes with vim mode (and my head).
 # I think if I just disabled it anytime we're in vicmd mode, that might make it
-# usable. 
-
-# This isn't working as expected. Issues seem to be related to the fact that I
-# can't clear the current suggestion, which would be the expected experience if
-# the suggestions are disabled. It's even worse though, as having the
-# suggestion still show up on the line messes with expect vi mode behavior.
+# usable (which I tried and failed... see below).
 
 # zinit light zsh-users/zsh-autosuggestions
 # bindkey '^L' autosuggest-accept
+# bindkey '^X' autosuggest-clear
 #
+# # This sort of lets us scroll through autosuggestions.
+# bindkey '^K' history-beginning-search-backward
+# bindkey '^J' history-beginning-search-forward
+
+# Couldn't get this working. Note that the keymap_select widget _does_ do
+# what's expected, but something comes along later and redraws the command line
+# to show the suggestion again (even though we called 'autosuggest-disable').
+
 # autoload -Uz add-zle-hook-widget
 #
-# This should work...
-# zle_autosuggest_state() {
-#     # echo $KEYMAP
-#     local left
-#     left=$LBUFFER
-#     if [ $KEYMAP = vicmd ]; then
-#         zle autosuggest-disable
-#         echo ${left} >/tmp/foo
-#         BUFFER="${left}"
-#         RBUFFER=""
-#         # zle autosuggest-clear
-#         zle -R
-#         # zle kill-line
-#     else
-#         # echo $KEYMAP
-#         echo 'else' >>/tmp/foo
-#         zle autosuggest-enable
-#     fi
+# echo '' >/tmp/foo
+#
+# zle_autosuggest_line_init() {
+#     echo 'line_init' >>/tmp/foo
+#     echo "BUFFER:$BUFFER" >>/tmp/foo
+#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
+#     # zle autosuggest-enable
 # }
 #
-# zle -N zle_autosuggest_state
-# add-zle-hook-widget -Uz line-init zle_autosuggest_state
-# add-zle-hook-widget -Uz keymap-select zle_autosuggest_state
+# zle_autosuggest_line_pre_redraw() {
+#     echo 'line_pre_redraw' >>/tmp/foo
+#     echo "BUFFER:$BUFFER" >>/tmp/foo
+#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
+# }
+#
+# zle_autosuggest_line_finish() {
+#     echo 'line_finish' >>/tmp/foo
+#     echo "BUFFER:$BUFFER" >>/tmp/foo
+#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
+# }
+#
+# zle_autosuggest_keymap_select() {
+#     echo 'keymap_select' >>/tmp/foo
+#     echo "BUFFER:$BUFFER" >>/tmp/foo
+#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
+#     zle autosuggest-clear
+#     zle autosuggest-disable
+#     zle vi-kill-eol
+#     sleep 5
+# }
+#
+# # Whether we use this or add 'autosuggest-clear' to the widget, it no worky.
+# # ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=("zle_autosuggest_keymap_select")
+#
+# zle -N zle_autosuggest_line_init
+# zle -N zle_autosuggest_keymap_select
+# add-zle-hook-widget -Uz line-init zle_autosuggest_line_init
+# add-zle-hook-widget -Uz line-pre-redraw zle_autosuggest_line_pre_redraw
+# add-zle-hook-widget -Uz line-finish zle_autosuggest_line_finish
+# add-zle-hook-widget -Uz keymap-select zle_autosuggest_keymap_select
+
+zstyle ':completion:*' menu selectzmodload zsh/complist
+
+# zsh/complist gives us access to the 'menuselect' keymap.
+zmodload zsh/complist
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+
+setopt rmstarsilent                    # Don't confirm 'rm -rf *'
 
 # }}}
 
@@ -278,28 +309,31 @@ bindkey -M vicmd "N" _vi_rev_repeat_search
 # This must come _after_ brew PATH manipulations.
 if which asdf &>/dev/null; then
 
-    # Ideally, we'd do this...
+    # Ideally, we'd do this to source asdf...
     # source $(brew --prefix asdf)/asdf.sh
     # The 'brew --prefix asdf' calls are way to slow, however.
+
+    # Interestingly, when we source the asdf.sh script, it creates a shell
+    # function callled 'asdf'. If we have asdf aliased to something else, it
+    # will create the function using the aliased value.
+
+    alias asdf='asdf__'
     source $(brew --prefix)/opt/asdf/asdf.sh
 
-    # The 'asdf.sh' that we just source actually creates `asdf` as a
-    # function. Therfore, we can't directly wrap it in a function called
-    # `asdf`, so we'll do this little wrapper/alias trick. 
-    # NOTE: this _must_ come after the above 'source ...'.
+    # Now we can wrap the just created 'asdf__' function.
     function asdf_() {
         if echo "$@" |grep '^install \+python' &>/dev/null; then
             echo "Use 'python-build <version> ~/.asdf/installs/python/...'"
         elif echo "$@" |grep '^install \+ruby' &>/dev/null; then
             echo "Use 'ruby-build <version> ~/.asdf/installs/ruby/...'"
         else
-            command asdf "$@"
+            asdf__ "$@"
         fi
     }
 
     alias asdf='asdf_'
-
-    # Make asdf completions work with our function.
+    
+    # Make asdf completions work with our wrapper function.
     compdef asdf_=asdf
 fi
 
@@ -324,15 +358,30 @@ fi
 # Helm
 which helm &>/dev/null && source <(helm completion zsh)
 
-# I didn't install fzf via brew, but maybe a I should.
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Fzf
 
-# if which fzf &>/dev/null; then
-# hfe() { 
-#     output=$(cat ~/.bash_history |fzf --no-sort --tac) && eval $output 
-# }
-# fi
+if which fzf &>/dev/null; then
 
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+    _fzf_history_file() {
+        selection=$(cat $HISTFILE |fzf --no-sort --tac --exact) 
+        if [ -n "$selection" ]; then
+            BUFFER=$selection
+            zle vi-cmd-mode
+        fi
+    }
+
+    zle -N _fzf_history_file
+
+    # This is bizarre... I want to map ctrl+/ to fzf history. Trying '^/',
+    # however, didn't work at all. I noticed just hitting ctrl+/ would output
+    # the string '^_'. I guess that's what the mapping needs. You can also do
+    # ctrl+v and then ctrl+/ to see the same. This also maps '^_', but I don't
+    # think that's an issue.
+    bindkey '^_' _fzf_history_file
+
+fi
 # }}}
 
 # Kubernetes Tooling {{{
