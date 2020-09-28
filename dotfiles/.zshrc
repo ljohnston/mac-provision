@@ -316,12 +316,6 @@ if which asdf &>/dev/null; then
     # Ideally, we'd do this to source asdf...
     # source $(brew --prefix asdf)/asdf.sh
     # The 'brew --prefix asdf' calls are way to slow, however.
-
-    # Interestingly, when we source the asdf.sh script, it creates a shell
-    # function callled 'asdf'. If we have asdf aliased to something else, it
-    # will create the function using the aliased value.
-
-    alias asdf='asdf__'
     source $(brew --prefix)/opt/asdf/asdf.sh
 
     # Now we can wrap the just created 'asdf__' function.
@@ -331,7 +325,7 @@ if which asdf &>/dev/null; then
         elif echo "$@" |grep '^install \+ruby' &>/dev/null; then
             echo "Use 'ruby-build <version> ~/.asdf/installs/ruby/...'"
         else
-            asdf__ "$@"
+            command asdf "$@"
         fi
     }
 

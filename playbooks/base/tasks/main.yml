@@ -18,11 +18,6 @@
     name: 'asdf' 
     state: 'latest'
 
-- name: 'install bash'
-  homebrew:
-    name: 'bash' 
-    state: 'latest'
-
 - name: 'install fzf'
   homebrew:
     name: 'fzf' 
@@ -56,6 +51,11 @@
     name: 'the_silver_searcher' 
     state: 'latest'
 
+- name: 'install starship'
+  homebrew: 
+    name: 'starship' 
+    state: 'latest'
+
 - name: 'install vim'
   homebrew: 
     name: 'vim' 
@@ -65,6 +65,45 @@
   homebrew: 
     name: 'wget' 
     state: 'latest'
+
+#
+# Shells
+#
+
+- name: 'install bash'
+  homebrew:
+    name: 'bash' 
+    state: 'latest'
+
+- name: 'install zsh'
+  homebrew:
+    name: 'zsh' 
+    state: 'latest'
+
+- name: 'install zinit'
+  git: 	
+    repo: 'https://github.com/zdharma/zinit.git' 
+    dest: '~/.zinit/bin'
+
+- name: 'add homebrew bash to /etc/shells'
+  lineinfile: 
+    path: '/etc/shells' 
+    line: '/usr/local/bin/bash' 
+    state: 'present'
+  become: 'yes'
+
+- name: 'add homebrew zsh to /etc/shells'
+  lineinfile: 
+    path: '/etc/shells' 
+    line: '/usr/local/bin/zsh' 
+    state: 'present'
+  become: 'yes'
+
+- name: Set default shell
+  user: 
+    name: '{{ ansible_user_id }}' 
+    shell: '/usr/local/bin/zsh'
+  become: 'yes'
 
 #
 # Homebrew casks.
@@ -190,23 +229,6 @@
     state: 'link'
 
 #
-# bash shell
-#
-
-- name: 'add homwbrew bash to /etc/shells'
-  lineinfile: 
-    path: '/etc/shells' 
-    line: '/usr/local/bin/bash' 
-    state: 'present'
-  become: 'yes'
-
-- name: Set default shell
-  user: 
-    name: '{{ ansible_user_id }}' 
-    shell: '/usr/local/bin/bash'
-  become: 'yes'
-
-#
 # Starship prompt config.
 #
 
@@ -234,7 +256,7 @@
 - name: 'configure vim'
   command: '~/.vim/bin/setup install'
   args:
-    creates: '~/.vim/bundle'
+    creates: '~/.vim/plugged'
 
 - name: 'vimwiki symlink'
   file: 
