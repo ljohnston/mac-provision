@@ -85,12 +85,22 @@
     repo: 'https://github.com/zdharma/zinit.git' 
     dest: '~/.zinit/bin'
 
+#
+# The "environment:" stuff here kind of a hack. Seems ansible passes the
+# existing environment when sudoing. For me, that includes asdf, which is
+# managing my python env. This creates all kinds of grief when sudo'ed.  I
+# could munge my path to remove the asdf stuff, but it seems all we need in 
+# the path is '/usr/bin'.
+#
+
 - name: 'add homebrew bash to /etc/shells'
   lineinfile: 
     path: '/etc/shells' 
     line: '/usr/local/bin/bash' 
     state: 'present'
   become: 'yes'
+  environment:
+    PATH: '/usr/bin'
 
 - name: 'add homebrew zsh to /etc/shells'
   lineinfile: 
@@ -98,12 +108,16 @@
     line: '/usr/local/bin/zsh' 
     state: 'present'
   become: 'yes'
+  environment:
+    PATH: '/usr/bin'
 
 - name: Set default shell
   user: 
     name: '{{ ansible_user_id }}' 
     shell: '/usr/local/bin/zsh'
   become: 'yes'
+  environment:
+    PATH: '/usr/bin'
 
 #
 # Homebrew casks.
