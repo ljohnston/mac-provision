@@ -78,6 +78,10 @@ if which vagrant &>/dev/null; then
     alias vsnap='vagrant snapshot'
 fi
 
+if which mvim &>/dev/null; then
+    alias e='mvim --remote-slient'
+fi
+
 # }}}
 
 # {{{ History
