@@ -22,6 +22,9 @@ disabled = true
 [erlang]
 disabled = true
 
+[gcloud]
+disabled = true
+
 [git_commit]
 # This plugin is SLOWWWWWWWW!
 disabled = true
