@@ -75,6 +75,7 @@ disabled = true
 
 [time]
 disabled = false
+format = "[$time]($style) "
 
 [zig]
 disabled = true
