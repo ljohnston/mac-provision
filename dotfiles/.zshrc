@@ -315,7 +315,7 @@ if which asdf &>/dev/null; then
 
     # Ideally, we'd do this to source asdf...
     # source $(brew --prefix asdf)/asdf.sh
-    # The 'brew --prefix asdf' calls are way to slow, however.
+    # The 'brew --prefix asdf' calls are way to slow, however, so...
     source $(brew --prefix)/opt/asdf/asdf.sh
 
     # Now we can wrap the just created 'asdf__' function.
@@ -325,10 +325,12 @@ if which asdf &>/dev/null; then
         elif echo "$@" |grep '^install \+ruby' &>/dev/null; then
             echo "Use 'ruby-build <version> ~/.asdf/installs/ruby/...'"
         else
-            command asdf "$@"
+            asdf "$@"
         fi
     }
 
+    source $(brew --prefix)/opt/asdf/asdf.sh
+    
     alias asdf='asdf_'
     
     # Make asdf completions work with our wrapper function.
