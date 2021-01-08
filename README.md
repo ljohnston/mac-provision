@@ -4,7 +4,7 @@ Provision a new Mac and/or manage an existing one.
 
 ## PREREQUISITES
 
-None.
+- git
 
 ## PROVISION
 

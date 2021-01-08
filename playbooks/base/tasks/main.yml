@@ -25,7 +25,6 @@
 #
 # Even with 'asdf' there are some similiar tools I want to install:
 #
-#     then just tell jenv about it.
 #   - pyenv/rbenv: To get python-build and ruby-build installed, which gives me
 #     much more flexibiltiy when it comes to installing them, and then just let
 #     asdf manage the different versions.
@@ -51,11 +50,6 @@
     name: 'the_silver_searcher' 
     state: 'latest'
 
-- name: 'install starship'
-  homebrew: 
-    name: 'starship' 
-    state: 'latest'
-
 - name: 'install vim'
   homebrew: 
     name: 'vim' 
@@ -64,6 +58,20 @@
 - name: 'install wget'
   homebrew: 
     name: 'wget' 
+    state: 'latest'
+
+#
+# Prompts
+#
+
+# - name: 'install powerline-go'
+#   homebrew: 
+#     name: 'powerline-go' 
+#     state: 'latest'
+
+- name: 'install starship'
+  homebrew: 
+    name: 'starship' 
     state: 'latest'
 
 #
@@ -124,18 +132,40 @@
 #
 
 #
-# I've tried to set this up to handle upgrades but that seems to be fraught
-# with peril (the issues are too many to enumerate). So I've pretty much just
-# set this up to ensure the apps are installed, but that's it. This means that
-# I can upgrade apps via their automatic upgrade feature or just via brew
-# directly.
+# Casks are kind of a pain to manage. We're just gonna ensure they're present
+# here and then going forward manage them via brew and/or each apps auto update
+# feature (for those that auto update).
 #
-# In addition, we use 'accept_external_apps' which means that the task should
-# basically no-op regardless of how the app got installed (i.e. whether our
-# task did it or not). That seems to be buggy though and doesn't always work.
-# The workaround for an app in that case is to uninstall it and then either
-# install it via brew or this playbook, afterwhich, it's all good.
-#
+
+- name: 'install docker'
+  homebrew_cask: 
+    name: 'docker' 
+    state: 'present'
+    accept_external_apps: 'yes'
+
+- name: 'install firefox'
+  homebrew_cask: 
+    name: 'firefox' 
+    state: 'present'
+    accept_external_apps: 'yes'
+
+- name: 'install google-chrome'
+  homebrew_cask: 
+    name: 'google-chrome' 
+    state: 'present'
+    accept_external_apps: 'yes'
+
+- name: 'install iterm2'
+  homebrew_cask: 
+    name: 'iterm2' 
+    state: 'present'
+    accept_external_apps: 'yes'
+
+- name: 'install macvim'
+  homebrew_cask: 
+    name: 'macvim' 
+    state: 'present'
+    accept_external_apps: 'yes'
 
 - name: 'install plain-clip'
   homebrew_cask: 
@@ -143,70 +173,29 @@
     state: 'present'
     accept_external_apps: 'yes'
 
-- name: 'install controlplane'
-  homebrew_cask: 
-    name: 'controlplane' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install google-chrome'
-  homebrew_cask: 
-    name: 'google-chrome' 
-    state: 'latest'
-    install_options: 'force'
-    accept_external_apps: 'yes'
-
-- name: 'install iterm2'
-  homebrew_cask: 
-    name: 'iterm2' 
-    state: 'latest'
-    install_options: 'force'
-    accept_external_apps: 'yes'
-
-- name: 'install macvim'
-  homebrew_cask: 
-    name: 'macvim' 
-    state: 'latest'
-    install_options: 'force'
-    accept_external_apps: 'yes'
-
 - name: 'install spotify'
   homebrew_cask: 
     name: 'spotify' 
-    state: 'latest'
-    install_options: 'force'
+    state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install vagrant'
   homebrew_cask: 
     name: 'vagrant' 
-    state: 'latest'
-    install_options: 'force'
+    state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install virtualbox'
   homebrew_cask: 
     name: 'virtualbox' 
-    state: 'latest'
-    install_options: 'force'
+    state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install vivaldi'
   homebrew_cask: 
     name: 'vivaldi' 
-    state: 'latest'
-    install_options: 'force'
+    state: 'present'
     accept_external_apps: 'yes'
-
-#
-# Non-brew installs.
-#
-
-- name: 'install powerline-go'
-  get_url: 
-    url: 'https://github.com/justjanne/powerline-go/releases/download/v1.11.0/powerline-go-darwin-amd64'
-    dest: '/usr/local/bin/powerline-go'
-    mode: '0755'
 
 #
 # My dotfiles.
