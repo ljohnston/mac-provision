@@ -167,12 +167,6 @@
     state: 'present'
     accept_external_apps: 'yes'
 
-- name: 'install plain-clip'
-  homebrew_cask: 
-    name: 'plain-clip'
-    state: 'present'
-    accept_external_apps: 'yes'
-
 - name: 'install spotify'
   homebrew_cask: 
     name: 'spotify' 
