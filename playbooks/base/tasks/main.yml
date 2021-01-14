@@ -257,6 +257,52 @@
     force: 'no'
 
 #
+# iTerm config.
+#
+
+- name: 'install iterm color schemes'
+  ansible.builtin.git: 	
+    repo: 'https://github.com/mbadolato/iTerm2-Color-Schemes.git' 
+    dest: '~/.iterm-color-schemes'
+
+- name: 'create ~/.iterm'
+  file:
+    path: '~/.iterm'
+    state: 'directory'
+    mode: '0700'
+
+- name: 'create ~/.iterm/README.txt'
+  ansible.builtin.copy:
+    content: |
+      iTerm Configuration Settings
+      
+      The com.googlecode.iterm2.plist file in this directory is a localized
+      (i.e. updated for current user home dir locations) version of the one
+      maintained in the mac-provision git repository.
+
+      iTerm should be configured to read/write its configuration here.
+
+      Any changes worth keeping should be back-ported to the mac-provision
+      repository version.
+
+      For more, see https://github.com/ljohnston/mac-provision
+    dest: '~/.iterm/README.txt'
+
+- name: 'copy iterm config for localization'
+  copy: 
+    src: '{{ playbook_dir }}/../config/com.googlecode.iterm2.plist'
+    dest: '~/.iterm/com.googlecode.iterm2.plist'
+    force: 'no'
+  register: localized_iterm_config
+
+- name: 'localize iterm config'
+  ansible.builtin.replace:
+    path: '~/.iterm/com.googlecode.iterm2.plist'
+    regexp: '^(.*)/Users/(?!{{ ansible_user_id }}(/|<))[^/<]*(.*)$'
+    replace: '\1/Users/{{ ansible_user_id }}\3'
+  when: localized_iterm_config.changed
+
+#
 # Starship prompt config.
 #
 
@@ -278,7 +324,7 @@
 
 - name: 'install vim config'
   git: 	
-    repo: 'git@github.com:ljohnston/vim.git' 
+    repo: 'https://github.com/ljohnston/vim.git' 
     dest: '~/.vim'
 
 - name: 'configure vim'
