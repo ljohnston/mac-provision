@@ -137,59 +137,59 @@
 # feature (for those that auto update).
 #
 
-- name: 'install docker'
-  homebrew_cask: 
-    name: 'docker' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install firefox'
-  homebrew_cask: 
-    name: 'firefox' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install google-chrome'
-  homebrew_cask: 
-    name: 'google-chrome' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install iterm2'
-  homebrew_cask: 
-    name: 'iterm2' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install macvim'
-  homebrew_cask: 
-    name: 'macvim' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install spotify'
-  homebrew_cask: 
-    name: 'spotify' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install vagrant'
-  homebrew_cask: 
-    name: 'vagrant' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install virtualbox'
-  homebrew_cask: 
-    name: 'virtualbox' 
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install vivaldi'
-  homebrew_cask: 
-    name: 'vivaldi' 
-    state: 'present'
-    accept_external_apps: 'yes'
+# - name: 'install docker'
+#   homebrew_cask: 
+#     name: 'docker' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install firefox'
+#   homebrew_cask: 
+#     name: 'firefox' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install google-chrome'
+#   homebrew_cask: 
+#     name: 'google-chrome' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install iterm2'
+#   homebrew_cask: 
+#     name: 'iterm2' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install macvim'
+#   homebrew_cask: 
+#     name: 'macvim' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install spotify'
+#   homebrew_cask: 
+#     name: 'spotify' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install vagrant'
+#   homebrew_cask: 
+#     name: 'vagrant' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install virtualbox'
+#   homebrew_cask: 
+#     name: 'virtualbox' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#
+# - name: 'install vivaldi'
+#   homebrew_cask: 
+#     name: 'vivaldi' 
+#     state: 'present'
+#     accept_external_apps: 'yes'
 
 #
 # My dotfiles.
