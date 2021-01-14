@@ -192,6 +192,19 @@
 #     accept_external_apps: 'yes'
 
 #
+# Fonts
+#
+
+- name: 'brew tap homebrew/cask-fonts'
+  community.general.homebrew_tap:
+    name: 'homebrew/cask-fonts'
+
+# - name: 'install source-code-pro-for-powerline font'
+#   homebrew_cask:
+#     name: 'font-source-code-pro-for-powerline'
+#     state: 'latest'
+
+#
 # My dotfiles.
 #
 
