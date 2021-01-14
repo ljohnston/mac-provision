@@ -239,6 +239,24 @@
     state: 'link'
 
 #
+# .ssh config
+#
+
+- name: 'create ~/.ssh'
+  file:
+    path: '~/.ssh'
+    state: 'directory'
+    mode: '0700'
+
+- name: 'create .ssh config'
+  ansible.builtin.copy:
+    content: |
+      AddKeysToAgent yes
+      UseKeychain yes
+    dest: '~/.ssh/config'
+    force: 'no'
+
+#
 # Starship prompt config.
 #
 
