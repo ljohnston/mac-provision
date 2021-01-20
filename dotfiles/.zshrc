@@ -174,7 +174,7 @@ fi
 source ~/.zinit/bin/zinit.zsh
 
 # Initialze completion.
-autoload -U compinit && compinit -i
+autoload -U compinit && compinit
 
 zinit light zdharma/fast-syntax-highlighting
 zle_highlight=('paste:none')
