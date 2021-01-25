@@ -253,6 +253,7 @@ bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
 setopt rmstarsilent                    # Don't confirm 'rm -rf *'
+setopt +o nomatch                      # Don't complain about non-matched globs
 
 # }}}
 
@@ -517,7 +518,7 @@ if which kubectl &>/dev/null; then
 
         [ -f "${HOME}/.kube/config" ] && kubeconfig="${HOME}/.kube/config"
 
-        for f in $(ls ~/.kube/*.kubeconfig); do
+        for f in $(ls ~/.kube/*.kubeconfig 2>/dev/null); do
             kubeconfig="$kubeconfig:$f"
             kubeconfig=$(echo $kubeconfig | sed 's/^://')
         done
