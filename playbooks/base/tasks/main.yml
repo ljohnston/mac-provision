@@ -30,6 +30,11 @@
 #     asdf manage the different versions.
 # 
 
+- name: 'install jq'
+  homebrew: 
+    name: 'jq' 
+    state: 'latest'
+
 - name: 'install pyenv'
   homebrew: 
     name: 'pyenv' 
