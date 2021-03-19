@@ -1,6 +1,9 @@
 [aws]
 disabled = true
 
+[cmd_duration]
+min_time = 5_000
+
 [conda]
 disabled = true
 
@@ -26,7 +29,6 @@ disabled = true
 disabled = true
 
 [git_commit]
-# This plugin is SLOWWWWWWWW!
 disabled = true
 
 [git_status]
