@@ -336,6 +336,27 @@ if which asdf &>/dev/null; then
     
     # Make asdf completions work with our wrapper function.
     compdef asdf_=asdf
+
+    function __asdf_complete() {
+
+        local pluginName="${1}"
+        shift
+
+        local currentVersion
+        currentVersion="$(asdf current "${pluginName}" |awk '{print $2}')"
+
+        local loadedCompletionName="_ASDF_COMPLETE_${pluginName}_VER"
+        # echo $loadedCompletionName
+        # echo ${(P)loadedCompletionName}
+
+        if [[ ${(P)loadedCompletionName} != "${currentVersion}" ]]
+        then
+            _asdf_load_completion
+            printf -v "${loadedCompletionName}" "%s" "${currentVersion}" 
+        fi
+
+        _asdf_complete "${@}"
+    }
 fi
 
 # For now, I think jenv is better for java than asdf. Mostly because jenv
@@ -388,7 +409,44 @@ fi
 # Kubernetes Tooling {{{
 
 if which kubectl &>/dev/null; then
-#
+    
+    # source <(kubectl completion zsh)
+
+    function _asdf_complete_kubectl() {
+
+        _asdf_complete() {
+            __start_kubectl "${@}"
+        }
+
+        _asdf_load_completion() {
+            source <(kubectl completion zsh)
+
+            #
+            # I don't entirely understand how zsh leverages bash completions,
+            # but it turns out for this to work the way it should, I need to
+            # use the "complete" function here instead to compdef. I figured
+            # this out by opening a new shell, running the "source ..." shown
+            # above and then did:
+            #
+            #   $ echo -E $_comps[kubectl]
+            #   _bash_complete -o default -F __start_kubectl
+            #
+            # In addition, I ran:
+            #
+            #   $ kubectl completion zsh |less
+            #
+            # Looking at the above output, there's a bunch of bash stuff,
+            # including the use of "complete ..." as I'm now using here.
+            #
+            
+            complete -F _asdf_complete_kubectl kubectl
+        }
+
+        __asdf_complete "kubectl" "${@}"
+    }
+
+    compdef _asdf_complete_kubectl kubectl
+
     alias k='kubectl'
     compdef k=kubectl
 
@@ -508,6 +566,9 @@ if which kubectl &>/dev/null; then
             [ -d "${HOME}/.kube/.kc" ] || mkdir "${HOME}/.kube/.kc"
 
             KUBECONFIG=$(__kc_all) kubectl config view --minify --raw --context ${context} >"${HOME}/.kube/.kc/${context}.kc"
+
+            # Keep some tooling (helm) from griping about kube config file perms.
+            chmod 600 "${HOME}/.kube/.kc/${context}.kc"
 
             export KUBECONFIG="${HOME}/.kube/.kc/${context}.kc"
         fi
