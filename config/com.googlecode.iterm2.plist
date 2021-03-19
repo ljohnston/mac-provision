@@ -7,7 +7,7 @@
 	<key>AboutToPasteTabsWithCancel_selection</key>
 	<integer>2</integer>
 	<key>Command</key>
-	<string>/bin/bash</string>
+	<string></string>
 	<key>Custom Color Presets</key>
 	<dict>
 		<key>Ciapre</key>
@@ -404,6 +404,14 @@ Split Vertically with Current Profile</string>
 	<integer>4</integer>
 	<key>JobName</key>
 	<true/>
+	<key>NeverWarnAboutShortLivedSessions_260FCA1D-C634-479D-8930-04F62E356D93</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_260FCA1D-C634-479D-8930-04F62E356D93_selection</key>
+	<integer>0</integer>
+	<key>NeverWarnAboutShortLivedSessions_29B0AC9A-9C6E-441F-B939-C8066FACA24A</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_29B0AC9A-9C6E-441F-B939-C8066FACA24A_selection</key>
+	<integer>0</integer>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -1056,7 +1064,7 @@ Split Vertically with Current Profile</string>
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/lance.johnston</string>
+			<string>/Users/lancjohn</string>
 		</dict>
 		<dict>
 			<key>ASCII Anti Aliased</key>
@@ -1066,160 +1074,160 @@ Split Vertically with Current Profile</string>
 			<key>Ansi 0 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.094972454011440277</real>
+				<string>0</string>
 				<key>Green Component</key>
-				<real>0.094970852136611938</real>
+				<string>0</string>
 				<key>Red Component</key>
-				<real>0.094973690807819366</real>
+				<string>0</string>
 			</dict>
 			<key>Ansi 1 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.036839082837104797</real>
+				<string>0</string>
 				<key>Green Component</key>
-				<real>0.0</real>
+				<string>0</string>
 				<key>Red Component</key>
-				<real>0.50563055276870728</real>
+				<string>0.8</string>
 			</dict>
 			<key>Ansi 10 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.36501666903495789</real>
+				<string>0.2039216</string>
 				<key>Green Component</key>
-				<real>0.6545635461807251</real>
+				<string>0.8862745</string>
 				<key>Red Component</key>
-				<real>0.6516106128692627</real>
+				<string>0.5411764999999999</string>
 			</dict>
 			<key>Ansi 11 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.48525094985961914</real>
+				<string>0.3098039</string>
 				<key>Green Component</key>
-				<real>0.87425780296325684</real>
+				<string>0.9137255</string>
 				<key>Red Component</key>
-				<real>0.86436504125595093</real>
+				<string>0.9882353</string>
 			</dict>
 			<key>Ansi 12 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.77783042192459106</real>
+				<string>0.8117647</string>
 				<key>Green Component</key>
-				<real>0.59280002117156982</real>
+				<string>0.6235294</string>
 				<key>Red Component</key>
-				<real>0.18765261769294739</real>
+				<string>0.4470588</string>
 			</dict>
 			<key>Ansi 13 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.3802189826965332</real>
+				<string>0.6588235</string>
 				<key>Green Component</key>
-				<real>0.18856461346149445</real>
+				<string>0.4980392</string>
 				<key>Red Component</key>
-				<real>0.82901692390441895</real>
+				<string>0.6784314</string>
 			</dict>
 			<key>Ansi 14 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.69688498973846436</real>
+				<string>0.8862745</string>
 				<key>Green Component</key>
-				<real>0.85700017213821411</real>
+				<string>0.8862745</string>
 				<key>Red Component</key>
-				<real>0.95349055528640747</real>
+				<string>0.2039216</string>
 			</dict>
 			<key>Ansi 15 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.95563691854476929</real>
+				<string>0.9254902</string>
 				<key>Green Component</key>
-				<real>0.95562064647674561</real>
+				<string>0.9333333</string>
 				<key>Red Component</key>
-				<real>0.95564931631088257</real>
+				<string>0.9333333</string>
 			</dict>
 			<key>Ansi 2 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.2325579971075058</real>
+				<string>0.02352941</string>
 				<key>Green Component</key>
-				<real>0.31778928637504578</real>
+				<string>0.6039215999999999</string>
 				<key>Red Component</key>
-				<real>0.28274443745613098</real>
+				<string>0.3058824</string>
 			</dict>
 			<key>Ansi 3 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.24512144923210144</real>
+				<string>0</string>
 				<key>Green Component</key>
-				<real>0.54394221305847168</real>
+				<string>0.627451</string>
 				<key>Red Component</key>
-				<real>0.80142897367477417</real>
+				<string>0.7686275</string>
 			</dict>
 			<key>Ansi 4 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.55041235685348511</real>
+				<string>0.6431373</string>
 				<key>Green Component</key>
-				<real>0.42780765891075134</real>
+				<string>0.3960784</string>
 				<key>Red Component</key>
-				<real>0.33938431739807129</real>
+				<string>0.2039216</string>
 			</dict>
 			<key>Ansi 5 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.48749321699142456</real>
+				<string>0.4823529</string>
 				<key>Green Component</key>
-				<real>0.3001200258731842</real>
+				<string>0.3137255</string>
 				<key>Red Component</key>
-				<real>0.4474489688873291</real>
+				<string>0.4588235</string>
 			</dict>
 			<key>Ansi 6 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.29273873567581177</real>
+				<string>0.6039215999999999</string>
 				<key>Green Component</key>
-				<real>0.31051722168922424</real>
+				<string>0.5960785</string>
 				<key>Red Component</key>
-				<real>0.35884392261505127</real>
+				<string>0.02352941</string>
 			</dict>
 			<key>Ansi 7 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.49669501185417175</real>
+				<string>0.8117647</string>
 				<key>Green Component</key>
-				<real>0.6413731575012207</real>
+				<string>0.8431373</string>
 				<key>Red Component</key>
-				<real>0.68174535036087036</real>
+				<string>0.827451</string>
 			</dict>
 			<key>Ansi 8 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.33335325121879578</real>
+				<string>0.3254902</string>
 				<key>Green Component</key>
-				<real>0.3333476185798645</real>
+				<string>0.3411765</string>
 				<key>Red Component</key>
-				<real>0.33335757255554199</real>
+				<string>0.3333333</string>
 			</dict>
 			<key>Ansi 9 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.20673564076423645</real>
+				<string>0.1607843</string>
 				<key>Green Component</key>
-				<real>0.22125436365604401</real>
+				<string>0.1607843</string>
 				<key>Red Component</key>
-				<real>0.67443263530731201</real>
+				<string>0.9372549</string>
 			</dict>
 			<key>BM Growl</key>
 			<true/>
 			<key>Background Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.15351828932762146</real>
+				<string>0</string>
 				<key>Green Component</key>
-				<real>0.11044745147228241</real>
+				<string>0</string>
 				<key>Red Component</key>
-				<real>0.097994714975357056</real>
+				<string>0</string>
 			</dict>
 			<key>Background Image Location</key>
-			<string>/Users/lance.johnston/.mac-provision/images/dark-blue-background.jpg</string>
+			<string>/Users/lancjohn/.mac-provision/images/dark-blue-background.jpg</string>
 			<key>Background Image Mode</key>
 			<integer>0</integer>
 			<key>Badge Color</key>
@@ -1236,7 +1244,7 @@ Split Vertically with Current Profile</string>
 				<real>1</real>
 			</dict>
 			<key>Blend</key>
-			<real>0.79488462467783505</real>
+			<real>1</real>
 			<key>Blinking Cursor</key>
 			<false/>
 			<key>Blur</key>
@@ -1246,11 +1254,11 @@ Split Vertically with Current Profile</string>
 			<key>Bold Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.95563691854476929</real>
+				<string>1</string>
 				<key>Green Component</key>
-				<real>0.95562064647674561</real>
+				<string>1</string>
 				<key>Red Component</key>
-				<real>0.95564931631088257</real>
+				<string>1</string>
 			</dict>
 			<key>Bound Hosts</key>
 			<array/>
@@ -1267,11 +1275,11 @@ Split Vertically with Current Profile</string>
 			<key>Cursor Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.35684689879417419</real>
+				<string>1</string>
 				<key>Green Component</key>
-				<real>0.50306510925292969</real>
+				<string>1</string>
 				<key>Red Component</key>
-				<real>0.57086759805679321</real>
+				<string>1</string>
 			</dict>
 			<key>Cursor Guide Color</key>
 			<dict>
@@ -1289,11 +1297,11 @@ Split Vertically with Current Profile</string>
 			<key>Cursor Text Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.094972454011440277</real>
+				<string>0</string>
 				<key>Green Component</key>
-				<real>0.094970852136611938</real>
+				<string>0</string>
 				<key>Red Component</key>
-				<real>0.094973690807819366</real>
+				<string>0</string>
 			</dict>
 			<key>Custom Command</key>
 			<string>No</string>
@@ -1309,12 +1317,16 @@ Split Vertically with Current Profile</string>
 			<false/>
 			<key>Foreground Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.48019847273826599</real>
+				<real>0.69999999999999996</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.64182853698730469</real>
+				<real>0.69999999999999996</real>
 				<key>Red Component</key>
-				<real>0.68177264928817749</real>
+				<real>0.69999999999999996</real>
 			</dict>
 			<key>Guid</key>
 			<string>29B0AC9A-9C6E-441F-B939-C8066FACA24A</string>
@@ -1660,20 +1672,20 @@ Split Vertically with Current Profile</string>
 			<key>Selected Text Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.49669501185417175</real>
+				<string>0</string>
 				<key>Green Component</key>
-				<real>0.6413731575012207</real>
+				<string>0</string>
 				<key>Red Component</key>
-				<real>0.68174535036087036</real>
+				<string>0</string>
 			</dict>
 			<key>Selection Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.22519049048423767</real>
+				<string>1</string>
 				<key>Green Component</key>
-				<real>0.14522182941436768</real>
+				<string>0.8353</string>
 				<key>Red Component</key>
-				<real>0.091022126376628876</real>
+				<string>0.7098</string>
 			</dict>
 			<key>Send Code When Idle</key>
 			<false/>
@@ -1696,7 +1708,7 @@ Split Vertically with Current Profile</string>
 			<key>Unlimited Scrollback</key>
 			<true/>
 			<key>Use Bold Font</key>
-			<true/>
+			<false/>
 			<key>Use Bright Bold</key>
 			<false/>
 			<key>Use Cursor Guide</key>
@@ -1712,7 +1724,7 @@ Split Vertically with Current Profile</string>
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/lance.johnston</string>
+			<string>/Users/lancjohn</string>
 		</dict>
 	</array>
 	<key>PMPrintingExpandedStateForPrint2</key>
@@ -1768,6 +1780,8 @@ Split Vertically with Current Profile</string>
 	</array>
 	<key>UseBorder</key>
 	<false/>
+	<key>UseMetal</key>
+	<false/>
 	<key>VisualIndicatorForEsc</key>
 	<false/>
 	<key>WordCharacters</key>
@@ -1779,7 +1793,7 @@ Split Vertically with Current Profile</string>
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>kCPKSelectionViewPreferredModeKey</key>
-	<integer>0</integer>
+	<integer>1</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
 	<false/>
 </dict>
