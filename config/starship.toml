@@ -40,7 +40,7 @@ staged = "+${count}"
 stashed = '\$${count}'
 untracked = "?${count}"
 
-[haskell]
+[java]
 disabled = true
 
 [julia]
@@ -69,13 +69,13 @@ disabled = true
 [purescript]
 disabled = true
 
-[python]
-scan_for_pyfiles = false
-
 [ruby]
 disabled = true
 
 [rust]
+disabled = true
+
+[scala]
 disabled = true
 
 [singularity]
