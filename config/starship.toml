@@ -46,6 +46,9 @@ disabled = true
 [julia]
 disabled = true
 
+[kotlin]
+disabled = true
+
 [kubernetes]
 disabled = false
 symbol = '⎈ '
