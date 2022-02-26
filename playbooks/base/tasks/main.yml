@@ -298,12 +298,16 @@
   ansible.builtin.git: 	
     repo: 'https://github.com/mbadolato/iTerm2-Color-Schemes.git' 
     dest: '~/.iterm-color-schemes'
+  tags:
+    - 'iterm-config'
 
 - name: 'create ~/.iterm'
   file:
     path: '~/.iterm'
     state: 'directory'
     mode: '0700'
+  tags:
+    - 'iterm-config'
 
 - name: 'create ~/.iterm/README.txt'
   ansible.builtin.copy:
@@ -321,6 +325,8 @@
 
       For more, see https://github.com/ljohnston/mac-provision
     dest: '~/.iterm/README.txt'
+  tags:
+    - 'iterm-config'
 
 - name: 'copy iterm config for localization'
   copy: 
@@ -328,6 +334,8 @@
     dest: '~/.iterm/com.googlecode.iterm2.plist'
     force: 'no'
   register: localized_iterm_config
+  tags:
+    - 'iterm-config'
 
 - name: 'localize iterm config'
   ansible.builtin.replace:
@@ -335,6 +343,8 @@
     regexp: '^(.*)/Users/(?!{{ ansible_user_id }}(/|<))[^/<]*(.*)$'
     replace: '\1/Users/{{ ansible_user_id }}\3'
   when: localized_iterm_config.changed
+  tags:
+    - 'iterm-config'
 
 #
 # Starship prompt config.
