@@ -1,3 +1,7 @@
+
+# Need for some larger git repos to show status.
+command_timeout = 1500
+
 [aws]
 disabled = true
 
