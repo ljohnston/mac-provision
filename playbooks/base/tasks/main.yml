@@ -61,11 +61,6 @@
     name: 'svn' 
     state: 'latest'
 
-- name: 'install vim'
-  homebrew: 
-    name: 'vim' 
-    state: 'latest'
-
 - name: 'install wget'
   homebrew: 
     name: 'wget' 
@@ -191,15 +186,11 @@
     state: 'present'
     accept_external_apps: 'yes'
 
-# 'no-binaries' here means symlinks won't be created, which we don't want as
-# those links conflict with the links created by the vim install, which
-# causes the macvim install to fail (and we'd prefer the vim links).
 - name: 'install macvim'
   homebrew_cask: 
     name: 'macvim' 
     state: 'present'
     accept_external_apps: 'yes'
-    install_options: 'no-binaries'
 
 - name: 'install spotify'
   homebrew_cask: 
