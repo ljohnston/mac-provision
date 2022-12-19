@@ -156,9 +156,8 @@ hfg() {
 # Prompt {{{
 
 if [ -n "${VIM}" ]; then
-    # We're in a VIM shell (i.e. :shell).
+    # We're in a VIM shell (i.e. :shell from VIM).
     :
-
 elif which starship &>/dev/null; then
     eval "$(starship init zsh)"
 fi
@@ -174,7 +173,7 @@ fi
 source ~/.zinit/bin/zinit.zsh
 
 # Initialze completion.
-autoload -U compinit && compinit
+autoload -Uz compinit && compinit -u
 
 zinit light zdharma/fast-syntax-highlighting
 zle_highlight=('paste:none')
@@ -319,24 +318,6 @@ if which asdf &>/dev/null; then
     # The 'brew --prefix asdf' calls are way to slow, however, so...
     source $(brew --prefix)/opt/asdf/asdf.sh
 
-    # Now we can wrap the just created 'asdf__' function.
-    function asdf_() {
-        if echo "$@" |grep '^install \+python' &>/dev/null; then
-            echo "Use 'python-build <version> ~/.asdf/installs/python/...'"
-        elif echo "$@" |grep '^install \+ruby' &>/dev/null; then
-            echo "Use 'ruby-build <version> ~/.asdf/installs/ruby/...'"
-        else
-            asdf "$@"
-        fi
-    }
-
-    source $(brew --prefix)/opt/asdf/asdf.sh
-    
-    alias asdf='asdf_'
-    
-    # Make asdf completions work with our wrapper function.
-    compdef asdf_=asdf
-
     function __asdf_complete() {
 
         local pluginName="${1}"
@@ -349,31 +330,12 @@ if which asdf &>/dev/null; then
         # echo $loadedCompletionName
         # echo ${(P)loadedCompletionName}
 
-        if [[ ${(P)loadedCompletionName} != "${currentVersion}" ]]
-        then
+        if [[ ${(P)loadedCompletionName} != "${currentVersion}" ]]; then
             _asdf_load_completion
             printf -v "${loadedCompletionName}" "%s" "${currentVersion}" 
         fi
 
         _asdf_complete "${@}"
-    }
-fi
-
-# For now, I think jenv is better for java than asdf. Mostly because jenv
-# leaves me in control of installing whatever jdks/jres I want and then simply
-# telling jenv about them. 
-# Of course, I also have sdkman. TODO: Sort this...
-which jenv &>/dev/null && eval "$(jenv init -)"
-
-if which pyenv &>/dev/null; then
-    function pyenv() {
-        echo "Use 'asdf' to manage python versions (via 'python-build')..."
-    }
-fi
-
-if which rbenv &>/dev/null; then
-    function rbenv() {
-        echo "Use 'asdf' to manage ruby versions (via 'ruby-build')..."
     }
 fi
 
@@ -396,11 +358,17 @@ if which fzf &>/dev/null; then
 
     zle -N _fzf_history_file
 
-    # This is bizarre... I want to map ctrl+/ to fzf history. Trying '^/',
-    # however, didn't work at all. I noticed just hitting ctrl+/ would output
-    # the string '^_'. I guess that's what the mapping needs. You can also do
-    # ctrl+v and then ctrl+/ to see the same. This also maps '^_', but I don't
-    # think that's an issue.
+    #
+    # This is bizarre... I want to map ctrl+/ to fzf history. After doing so
+    # however, '^/' didn't work at all, but it _did_ output the the string
+    # '^_'. I guessed that's what the mapping needs and that works. 
+    #
+    # In a terminal, ctrl+v followed by ctrl+/ will also output '^_'. I guess
+    # that's how we can see what the key binding needs.
+    #
+    # This following binding _also_ maps '^_', but that's not an issue.
+    #
+
     bindkey '^_' _fzf_history_file
 
 fi
@@ -409,12 +377,15 @@ fi
 # Kubernetes Tooling {{{
 
 if which kubectl &>/dev/null; then
-    
-    # source <(kubectl completion zsh)
 
+    #
+    # Got the following from here: https://github.com/asdf-vm/asdf/issues/752
+    #
+    
     function _asdf_complete_kubectl() {
 
         _asdf_complete() {
+            # NOTE: __start_kubectl comes from 'source <(kubectl completion zsh)'
             __start_kubectl "${@}"
         }
 
@@ -450,12 +421,36 @@ if which kubectl &>/dev/null; then
     alias k='kubectl'
     compdef k=kubectl
 
+    #
+    # NOTE: kubectx comes with completion functions for itself and kubens that
+    # must be manually installed via symlinks.
+    #
+
     if which kubectx &>/dev/null; then
+    
+        local ASDF_KUBECTX=$(asdf where kubectx)
+        local ZSH_FUNCTIONS=/usr/local/share/zsh/site-functions
+        
+        local reload_completions=false
+
+        if [ ! ${ASDF_KUBECTX}/completion/kubectx.zsh -ef ${ZSH_FUNCTIONS}/_kubectx.zsh ]; then
+            ln -sf ${ASDF_KUBECTX}/completion/kubectx.zsh ${ZSH_FUNCTIONS}/_kubectx.zsh 
+            reload_completions=true
+        fi
+
+        if [ ! ${ASDF_KUBECTX}/completion/kubens.zsh -ef ${ZSH_FUNCTIONS}/_kubens.zsh ]; then
+            ln -sf ${ASDF_KUBECTX}/completion/kubens.zsh ${ZSH_FUNCTIONS}/_kubens.zsh 
+            reload_completions=true
+        fi
+
+        # Calling compinit to load completions for a single completion file
+        # seems pretty heavyweight. If there is a better way, however, I
+        # haven't found it yet.
+        [ "${reload_completions}" == true ] && compinit
+
         alias kx='kubectx'
         compdef kx=kubectx
-    fi
 
-    if which kubens &>/dev/null; then
         alias kn='kubens' 
         compdef kn=kubens
     fi
@@ -620,5 +615,14 @@ fi
 # Local Config {{{
 
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# }}}
+
+# SDKMAN (has to be last) {{{
+
+if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+    export SDKMAN_DIR="$HOME/.sdkman"
+    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+fi
 
 # }}}
