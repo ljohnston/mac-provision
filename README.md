@@ -17,9 +17,9 @@ $ bin/provision
 $ ansible-playbook -i playbooks/inventory playbooks/main.yml --ask-become-pass
 ```
 
-### POST-PROVISION MANUAL UPDATES
+## POST-PROVISION MANUAL UPDATES
 
-#### iTerm
+### iTerm
 
 The mac-provision project includes config file for iTerm. It can't, however,
 update the iTerm preference needed to read/write the config file. 
@@ -44,9 +44,25 @@ Keyboard shortcuts
   - Map select pane left to Cmd-Shift-h
   - Map select pane right to Cmd-Shift-l
 
-#### Browsers
+### Browsers
 
-See comments in the .vim README for info.
+In all browsers, I use an _awesome_ extension called "surfingkeys", which
+provides vim-like features inside the browser. There are a number of browser
+customizations that can be made to improve the user experience when using 
+surfingkeys. See comments in the .vim README for more info.
+
+There are a number of non-surfingkeys related customizations, however, that I
+like, described here.
+
+#### Vivaldi
+
+- disable password manager
+- home page: google.com
+- startup with: homepage
+- new session: open homepage
+- new tabs: open homepage
+- new tab position: after active tab
+- downloads: don't open panel automatically
 
 ## UPDATES
 
