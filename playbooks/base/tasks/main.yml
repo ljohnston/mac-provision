@@ -5,22 +5,22 @@
 #
 
 #
-# TODO: 
+# TODO:
 # - sdkman installation
-# 
+#
 
 # Do a brew update.
 - homebrew:
     update_homebrew: 'yes'
 
 - name: 'install asdf'
-  homebrew: 
-    name: 'asdf' 
+  homebrew:
+    name: 'asdf'
     state: 'latest'
 
 - name: 'install fzf'
   homebrew:
-    name: 'fzf' 
+    name: 'fzf'
     state: 'latest'
 #
 # Even with 'asdf' there are some similiar tools I want to install:
@@ -28,42 +28,42 @@
 #   - pyenv/rbenv: To get python-build and ruby-build installed, which gives me
 #     much more flexibiltiy when it comes to installing them, and then just let
 #     asdf manage the different versions.
-# 
+#
 
 - name: 'install jq'
-  homebrew: 
-    name: 'jq' 
+  homebrew:
+    name: 'jq'
     state: 'latest'
 
 - name: 'install pyenv'
-  homebrew: 
-    name: 'pyenv' 
+  homebrew:
+    name: 'pyenv'
     state: 'latest'
 
 - name: 'install rbenv'
-  homebrew: 
-    name: 'rbenv' 
+  homebrew:
+    name: 'rbenv'
     state: 'latest'
 
 - name: 'install ripgrep'
-  homebrew: 
-    name: 'ripgrep' 
+  homebrew:
+    name: 'ripgrep'
     state: 'latest'
 
 - name: 'install the_silver_searcher'
-  homebrew: 
-    name: 'the_silver_searcher' 
+  homebrew:
+    name: 'the_silver_searcher'
     state: 'latest'
 
 # Font installs need this.
 - name: 'install svn'
-  homebrew: 
-    name: 'svn' 
+  homebrew:
+    name: 'svn'
     state: 'latest'
 
 - name: 'install wget'
-  homebrew: 
-    name: 'wget' 
+  homebrew:
+    name: 'wget'
     state: 'latest'
 
 #
@@ -71,13 +71,13 @@
 #
 
 # - name: 'install powerline-go'
-#   homebrew: 
-#     name: 'powerline-go' 
+#   homebrew:
+#     name: 'powerline-go'
 #     state: 'latest'
 
 - name: 'install starship'
-  homebrew: 
-    name: 'starship' 
+  homebrew:
+    name: 'starship'
     state: 'latest'
 
 #
@@ -86,17 +86,17 @@
 
 - name: 'install bash'
   homebrew:
-    name: 'bash' 
+    name: 'bash'
     state: 'latest'
 
 - name: 'install zsh'
   homebrew:
-    name: 'zsh' 
+    name: 'zsh'
     state: 'latest'
 
 - name: 'install zinit'
-  git: 	
-    repo: 'https://github.com/zdharma/zinit.git' 
+  git:
+    repo: 'https://github.com/zdharma/zinit.git'
     dest: '~/.zinit/bin'
 
 #
@@ -104,7 +104,7 @@
 #
 
 - name: 'check for zsh subdirs'
-  stat: 
+  stat:
     path: '{{ item }}'
   loop:
     - '/usr/local/share/zsh'
@@ -112,7 +112,7 @@
   register: zsh_subdirs
 
 - name: 'set zsh subdir permissions'
-  file: 
+  file:
     path: '{{ item.item }}'
     mode: 'g-w'
   when: item.stat.exists == true
@@ -122,31 +122,31 @@
 # The "environment:" stuff here kind of a hack. Seems ansible passes the
 # existing environment when sudoing. For me, that includes asdf, which is
 # managing my python env. This creates all kinds of grief when sudo'ed.  I
-# could munge my path to remove the asdf stuff, but it seems all we need in 
+# could munge my path to remove the asdf stuff, but it seems all we need in
 # the path is '/usr/bin'.
 #
 
 - name: 'add homebrew bash to /etc/shells'
-  lineinfile: 
-    path: '/etc/shells' 
-    line: '/usr/local/bin/bash' 
+  lineinfile:
+    path: '/etc/shells'
+    line: '/usr/local/bin/bash'
     state: 'present'
   become: 'yes'
   environment:
     PATH: '/usr/bin'
 
 - name: 'add homebrew zsh to /etc/shells'
-  lineinfile: 
-    path: '/etc/shells' 
-    line: '/usr/local/bin/zsh' 
+  lineinfile:
+    path: '/etc/shells'
+    line: '/usr/local/bin/zsh'
     state: 'present'
   become: 'yes'
   environment:
     PATH: '/usr/bin'
 
 - name: Set default shell
-  user: 
-    name: '{{ ansible_user_id }}' 
+  user:
+    name: '{{ ansible_user_id }}'
     shell: '/usr/local/bin/zsh'
   become: 'yes'
   environment:
@@ -163,56 +163,62 @@
 #
 
 - name: 'install docker'
-  homebrew_cask: 
-    name: 'docker' 
+  homebrew_cask:
+    name: 'docker'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install firefox'
-  homebrew_cask: 
-    name: 'firefox' 
+  homebrew_cask:
+    name: 'firefox'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install google-chrome'
-  homebrew_cask: 
-    name: 'google-chrome' 
+  homebrew_cask:
+    name: 'google-chrome'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install iterm2'
-  homebrew_cask: 
-    name: 'iterm2' 
+  homebrew_cask:
+    name: 'iterm2'
+    state: 'present'
+    accept_external_apps: 'yes'
+
+- name: 'install maccy'
+  homebrew_cask:
+    name: 'maccy'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install macvim'
-  homebrew_cask: 
-    name: 'macvim' 
+  homebrew_cask:
+    name: 'macvim'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install spotify'
-  homebrew_cask: 
-    name: 'spotify' 
+  homebrew_cask:
+    name: 'spotify'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install vagrant'
-  homebrew_cask: 
-    name: 'vagrant' 
+  homebrew_cask:
+    name: 'vagrant'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install virtualbox'
-  homebrew_cask: 
-    name: 'virtualbox' 
+  homebrew_cask:
+    name: 'virtualbox'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install vivaldi'
-  homebrew_cask: 
-    name: 'vivaldi' 
+  homebrew_cask:
+    name: 'vivaldi'
     state: 'present'
     accept_external_apps: 'yes'
 
@@ -234,31 +240,31 @@
 #
 
 - name: '.bashrc symlink'
-  file: 
+  file:
     src: '{{ playbook_dir }}/../dotfiles/.bashrc'
     dest: '~/.bashrc'
     state: 'link'
 
 - name: '.profile symlink'
-  file: 
+  file:
     src: '{{ playbook_dir }}/../dotfiles/.profile'
     dest: '~/.profile'
     state: 'link'
 
 - name: '.zshenv symlink'
-  file: 
+  file:
     src: '{{ playbook_dir }}/../dotfiles/.zshenv'
     dest: '~/.zshenv'
     state: 'link'
 
 - name: '.zprofile symlink'
-  file: 
+  file:
     src: '{{ playbook_dir }}/../dotfiles/.zprofile'
     dest: '~/.zprofile'
     state: 'link'
 
 - name: '.zshrc symlink'
-  file: 
+  file:
     src: '{{ playbook_dir }}/../dotfiles/.zshrc'
     dest: '~/.zshrc'
     state: 'link'
@@ -286,8 +292,8 @@
 #
 
 - name: 'install iterm color schemes'
-  ansible.builtin.git: 	
-    repo: 'https://github.com/mbadolato/iTerm2-Color-Schemes.git' 
+  ansible.builtin.git:
+    repo: 'https://github.com/mbadolato/iTerm2-Color-Schemes.git'
     dest: '~/.iterm-color-schemes'
   tags:
     - 'iterm-config'
@@ -304,7 +310,7 @@
   ansible.builtin.copy:
     content: |
       iTerm Configuration Settings
-      
+
       The com.googlecode.iterm2.plist file in this directory is a localized
       (i.e. updated for current user home dir locations) version of the one
       maintained in the mac-provision git repository.
@@ -320,7 +326,7 @@
     - 'iterm-config'
 
 - name: 'copy iterm config for localization'
-  copy: 
+  copy:
     src: '{{ playbook_dir }}/../config/com.googlecode.iterm2.plist'
     dest: '~/.iterm/com.googlecode.iterm2.plist'
     force: 'no'
@@ -348,7 +354,7 @@
     mode: '0700'
 
 - name: 'starship.toml symlink'
-  file: 
+  file:
     src: '{{ playbook_dir }}/../config/starship.toml'
     dest: '~/.config/starship.toml'
     state: 'link'
@@ -358,8 +364,8 @@
 #
 
 - name: 'install vim config'
-  git: 	
-    repo: 'https://github.com/ljohnston/vim.git' 
+  git:
+    repo: 'https://github.com/ljohnston/vim.git'
     dest: '~/.vim'
 
 - name: 'configure vim'
@@ -368,7 +374,7 @@
     creates: '~/.vim/plugged'
 
 - name: 'vimwiki symlink'
-  file: 
+  file:
     src: '~/Google Drive/vimwiki'
     dest: '~/vimwiki'
     state: 'link'
