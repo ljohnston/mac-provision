@@ -313,6 +313,8 @@ bindkey -M vicmd "N" _vi_rev_repeat_search
 # This must come _after_ brew PATH manipulations.
 if which asdf &>/dev/null; then
 
+    source $(brew --prefix asdf)/libexec/asdf.sh
+
     function __asdf_complete() {
 
         local pluginName="${1}"
