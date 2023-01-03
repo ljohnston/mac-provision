@@ -98,7 +98,7 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=100000
 
-HISTORY_IGNORE='(history|history *|h|h *|hl|echo *base64*|echo *json_pp*)'
+HISTORY_IGNORE='(history|history *|h|h *|hfg|hfg *|hg|hg *|hl|hfl|echo *base64*|echo *json_pp*)'
 
 setopt incappendhistory          # Write to the history file immediately, not when the shell exits. 
 setopt histignoredups            # Don't record an entry that was just recorded again.
@@ -106,13 +106,6 @@ setopt histignorealldups         # Delete old recorded entry if new entry is a d
 setopt histfindnodups            # Do not display a line previously found.
 setopt histignorespace           # Don't record an entry starting with a space.
 setopt histreduceblanks          # Remove superfluous blanks before recording entry.
-
-# Had this, but it increases shell startup time something terrible.
-# Not really sure I want it anyway.
-# setopt histexpiredupsfirst       # Expire duplicate entries first when trimming history.
-
-# Not sure about this. A contextual history file can be a good thing.
-#setopt histsavenodups           # Don't write duplicate entries in the history file.
 
 unsetopt sharehistory            # Don't share history between all sessions.
 
@@ -122,6 +115,8 @@ alias history='history 1'
 # }}}
 
 # History Grep {{{
+
+# NOTE: Since I started using fzf, these aren't so useful anymore.
 
 # History grep that builds up final command to grep for multiple
 # items in the command history.
