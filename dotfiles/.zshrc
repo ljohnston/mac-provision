@@ -82,6 +82,8 @@ if which mvim &>/dev/null; then
     alias e='mvim --remote-slient'
 fi
 
+alias decode_url='python -c '\''print(input().replace("+", " ").replace("%", "\\x").encode().decode("unicode_escape"))'\'' <<< '
+
 # }}}
 
 # {{{ History
@@ -307,6 +309,10 @@ bindkey -M vicmd "N" _vi_rev_repeat_search
 
 # This must come _after_ brew PATH manipulations.
 if which asdf &>/dev/null; then
+
+    # The asdf installed groovy assumes that your managing java with
+    # asdf as well. But I'm not. This will disable that stupid behavior.
+    export ASDF_GROOVY_DISABLE_JAVA_HOME_EXPORT=true
 
     source $(brew --prefix asdf)/libexec/asdf.sh
 

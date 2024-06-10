@@ -16,33 +16,16 @@
 - name: 'install asdf'
   homebrew:
     name: 'asdf'
-    state: 'latest'
+    state: 'present'
 
 - name: 'install fzf'
   homebrew:
     name: 'fzf'
     state: 'latest'
-#
-# Even with 'asdf' there are some similiar tools I want to install:
-#
-#   - pyenv/rbenv: To get python-build and ruby-build installed, which gives me
-#     much more flexibiltiy when it comes to installing them, and then just let
-#     asdf manage the different versions.
-#
 
 - name: 'install jq'
   homebrew:
     name: 'jq'
-    state: 'latest'
-
-- name: 'install pyenv'
-  homebrew:
-    name: 'pyenv'
-    state: 'latest'
-
-- name: 'install rbenv'
-  homebrew:
-    name: 'rbenv'
     state: 'latest'
 
 - name: 'install ripgrep'
@@ -55,11 +38,16 @@
     name: 'the_silver_searcher'
     state: 'latest'
 
-# Font installs need this.
-- name: 'install svn'
+- name: 'install yq'
   homebrew:
-    name: 'svn'
+    name: 'yq'
     state: 'latest'
+
+# Font installs need this. Really?
+# - name: 'install svn'
+#   homebrew:
+#     name: 'svn'
+#     state: 'latest'
 
 - name: 'install wget'
   homebrew:
@@ -69,11 +57,6 @@
 #
 # Prompts
 #
-
-# - name: 'install powerline-go'
-#   homebrew:
-#     name: 'powerline-go'
-#     state: 'latest'
 
 - name: 'install starship'
   homebrew:
@@ -186,6 +169,12 @@
     state: 'present'
     accept_external_apps: 'yes'
 
+- name: 'install karabiner-elements'
+  homebrew_cask:
+    name: 'karabiner-elements'
+    state: 'present'
+    accept_external_apps: 'yes'
+
 - name: 'install maccy'
   homebrew_cask:
     name: 'maccy'
@@ -195,12 +184,6 @@
 - name: 'install macvim'
   homebrew_cask:
     name: 'macvim'
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install spotify'
-  homebrew_cask:
-    name: 'spotify'
     state: 'present'
     accept_external_apps: 'yes'
 
@@ -233,6 +216,11 @@
 - name: 'install source-code-pro-for-powerline font'
   homebrew_cask:
     name: 'font-source-code-pro-for-powerline'
+    state: 'latest'
+
+- name: 'install font-sauce-code-pro-nerd-font'
+  homebrew_cask:
+    name: 'font-sauce-code-pro-nerd-font'
     state: 'latest'
 
 #
@@ -344,7 +332,7 @@
     - 'iterm-config'
 
 #
-# Starship prompt config.
+# App config.
 #
 
 - name: 'create ~/.config'
@@ -357,6 +345,18 @@
   file:
     src: '{{ playbook_dir }}/../config/starship.toml'
     dest: '~/.config/starship.toml'
+    state: 'link'
+
+- name: 'create ~/.config/karabiner'
+  file:
+    path: '~/.config'
+    state: 'directory'
+    mode: '0700'
+
+- name: 'karabiner.json symlink'
+  file:
+    src: '{{ playbook_dir }}/../config/karabiner.json'
+    dest: '~/.config/karabiner.json'
     state: 'link'
 
 #

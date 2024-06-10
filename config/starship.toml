@@ -33,7 +33,7 @@ disabled = true
 disabled = true
 
 [git_commit]
-disabled = true
+style = "yellow"
 
 [git_status]
 conflicted = "=${count}"
@@ -45,7 +45,7 @@ stashed = '\$${count}'
 untracked = "?${count}"
 
 [java]
-disabled = true
+disabled = false
 
 [julia]
 disabled = true
@@ -57,6 +57,12 @@ disabled = true
 disabled = false
 symbol = '⎈ '
 style = 'cyan'
+
+[package]
+disabled = true
+
+[python]
+disabled = true
 
 [nim]
 disabled = true

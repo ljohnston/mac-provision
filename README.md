@@ -2,6 +2,10 @@
 
 Provision a new Mac and/or manage an existing one.
 
+## TODO
+
+- Add karabininer config (~/.config/karabiner/karabiner.json)
+
 ## PREREQUISITES
 
 - git
@@ -16,6 +20,17 @@ $ cd ~/.mac-provision
 $ bin/provision
 $ ansible-playbook -i playbooks/inventory playbooks/main.yml --ask-become-pass
 ```
+
+## PRE- OR POST- PROVISION MANUAL UPDATES
+
+Configure keyboard modifier keys:
+
+Settings > Keyboard > Keyboard Shortcuts... > Modifier Keys
+
+  - Caps Lock > Control
+  - Control > Caps Lock
+
+  May need to do this for multiple keyboards.
 
 ## POST-PROVISION MANUAL UPDATES
 
