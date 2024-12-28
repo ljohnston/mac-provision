@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
 
-if [ ! -x /usr/local/bin/brew ]; then
+if [[ ! -x /usr/local/bin/brew && ! -x /opt/homebrew/bin/brew ]]; then
     echo "installing homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     echo "homebrew is installed"
 fi
 
+if [ -x /usr/local/bin/brew ]; then
+    BREW=/usr/local/bin/brew
+else
+    BREW=/opt/homebrew/bin/brew
+fi
+
 if [ ! -x /usr/local/bin/ansible ]; then
     echo "installing ansible via homebrew"
-    brew install ansible
+    $BREW install ansible
 else
     echo "ansible is installed"
 fi

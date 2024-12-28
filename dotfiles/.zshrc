@@ -15,43 +15,6 @@
 # fi
 # }}}
 
-# General {{{
-
-#
-# In general, keep PATH mods up front in case others rely on them.
-#
-
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
-
-if [ -d "/usr/local/sbin" ] ; then
-    PATH="/usr/local/sbin:$PATH"
-fi
-
-if [[ $OSTYPE == *darwin* ]]; then
-
-    # If we're running brew, let's make sure that /usr/local/bin is first in
-    # our PATH to ensure our brew installed packages will take precedence.
-    if which brew &>/dev/null; then
-        # Is there a better way to do this?
-        path=$(echo $PATH \
-            |sed -E 's|^/usr/local/bin:||' \
-            |sed -E 's|:/usr/local/bin$||' \
-            |sed -E 's|:?/usr/local/bin:|:|' \
-            |sed -E 's|:/usr/local/bin:?|:|')
-        PATH="/usr/local/bin:${path}"
-
-        # I get hate mail from GitHub if I commit this... do I really need it?
-        # export HOMEBREW_GITHUB_API_TOKEN=4f5c0b3fbdc3e00f865bb7850ab947be03ae461f
-    fi
-fi
-
-export CLICOLOR=1
-export EDITOR=vim
-
-# }}}
-
 # Aliases {{{
 
 alias gw='./gradlew'
@@ -167,7 +130,7 @@ fi
 # widgets added to 'add-zle-hook-widget').
 
 # Must source this before calling 'compinit'.
-source ~/.zinit/bin/zinit.zsh
+source ~/.zinit/bin/zi.zsh
 
 # Initialze completion.
 autoload -Uz compinit && compinit -u

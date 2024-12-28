@@ -39,7 +39,7 @@ Settings > Keyboard > Keyboard Shortcuts... > Modifier Keys
 The mac-provision project includes config file for iTerm. It can't, however,
 update the iTerm preference needed to read/write the config file. 
 
-  iTerm > Preferences > General > Preferences
+  iTerm > Settings > General > Settings
     - Check "Load preferences from a custom folder or URL"
     - Enter path as "~/.iterm"
     - Check "Save changes to folder when iTerm2 quits"

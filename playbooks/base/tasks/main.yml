@@ -72,34 +72,10 @@
     name: 'bash'
     state: 'latest'
 
-- name: 'install zsh'
-  homebrew:
-    name: 'zsh'
-    state: 'latest'
-
 - name: 'install zinit'
   git:
     repo: 'https://github.com/zdharma/zinit.git'
     dest: '~/.zinit/bin'
-
-#
-# Zsh's compinit doesn't like "insecure" directories.
-#
-
-- name: 'check for zsh subdirs'
-  stat:
-    path: '{{ item }}'
-  loop:
-    - '/usr/local/share/zsh'
-    - '/usr/local/share/zsh/site-functions'
-  register: zsh_subdirs
-
-- name: 'set zsh subdir permissions'
-  file:
-    path: '{{ item.item }}'
-    mode: 'g-w'
-  when: item.stat.exists == true
-  loop: '{{ zsh_subdirs.results }}'
 
 #
 # The "environment:" stuff here kind of a hack. Seems ansible passes the
@@ -114,23 +90,6 @@
     path: '/etc/shells'
     line: '/usr/local/bin/bash'
     state: 'present'
-  become: 'yes'
-  environment:
-    PATH: '/usr/bin'
-
-- name: 'add homebrew zsh to /etc/shells'
-  lineinfile:
-    path: '/etc/shells'
-    line: '/usr/local/bin/zsh'
-    state: 'present'
-  become: 'yes'
-  environment:
-    PATH: '/usr/bin'
-
-- name: Set default shell
-  user:
-    name: '{{ ansible_user_id }}'
-    shell: '/usr/local/bin/zsh'
   become: 'yes'
   environment:
     PATH: '/usr/bin'
@@ -208,10 +167,6 @@
 #
 # Fonts
 #
-
-- name: 'brew tap homebrew/cask-fonts'
-  community.general.homebrew_tap:
-    name: 'homebrew/cask-fonts'
 
 - name: 'install source-code-pro-for-powerline font'
   homebrew_cask:
