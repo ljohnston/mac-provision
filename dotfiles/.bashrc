@@ -9,8 +9,8 @@
 # Occassionally I end up with so much crap in my bash startup scripts that
 # things become really slow. When that happens, tracking down the culprit can
 # be difficult. Uncommenting the following and examining the specified log file
-# can identify commands that take a while to execute. 
-# 
+# can identify commands that take a while to execute.
+#
 # When needed, uncomment the following, start a new shell (it will appear to
 # hang because the IO in it has been messed with), exit it, and examine the log
 # file.
@@ -25,7 +25,7 @@
 #
 #   The above should give all of the commands directly called from the startup
 #   scripts. Increasing the second digit in the brackets will increase the
-#   detail. 
+#   detail.
 #
 # With the following in effect, startup will be _really_ slow. The relative
 # timings in the log file, however, should be informative.
@@ -155,7 +155,7 @@ fi
 
 # For now, I think jenv is better for java than asdf. Mostly because jenv
 # leaves me in control of installing whatever jdks/jres I want and then simply
-# telling jenv about them. 
+# telling jenv about them.
 # Of course, I also have sdkman. TODO: Sort this...
 which jenv &>/dev/null && eval "$(jenv init -)"
 
@@ -184,7 +184,7 @@ if which kubectl &>/dev/null; then
     source <(kubectl completion bash)
     complete -o default -F __start_kubectl k
 
-    # NOTE: `$ complete |grep <comman>` to get 
+    # NOTE: `$ complete |grep <comman>` to get
     # current completion for <command>.
 
     if which kubectx &>/dev/null; then
@@ -193,13 +193,13 @@ if which kubectl &>/dev/null; then
     fi
 
     if which kubens &>/dev/null; then
-        alias kn='kubens' 
+        alias kn='kubens'
         complete -F _kube_namespaces kn
     fi
 
     # This kstats alias from here:
     # https://github.com/kubernetes/kubernetes/issues/17512
-    alias kstats='join -a1 -a2 -o 0,1.2,1.3,2.2,2.3,2.4,2.5, -e '"'"'<none>'"'"' <(kubectl top pods) <(kubectl get pods -o custom-columns=NAME:.metadata.name,"CPU_REQ(cores)":.spec.containers[*].resources.requests.cpu,"MEMORY_REQ(bytes)":.spec.containers[*].resources.requests.memory,"CPU_LIM(cores)":.spec.containers[*].resources.limits.cpu,"MEMORY_LIM(bytes)":.spec.containers[*].resources.limits.memory) | column -t -s'"'"' '"'" 
+    alias kstats='join -a1 -a2 -o 0,1.2,1.3,2.2,2.3,2.4,2.5, -e '"'"'<none>'"'"' <(kubectl top pods) <(kubectl get pods -o custom-columns=NAME:.metadata.name,"CPU_REQ(cores)":.spec.containers[*].resources.requests.cpu,"MEMORY_REQ(bytes)":.spec.containers[*].resources.requests.memory,"CPU_LIM(cores)":.spec.containers[*].resources.limits.cpu,"MEMORY_LIM(bytes)":.spec.containers[*].resources.limits.memory) | column -t -s'"'"' '"'"
 
     #
     # FUNCTION
@@ -210,12 +210,12 @@ if which kubectl &>/dev/null; then
     #
     # USAGE
     #   kc [<context>|ls|all|-]
-    #   
+    #
     #   where:
     #     <context> dynamically generates a <context>-specific
     #               kubeconfig file and sets KUBECONFIG accordingly
     #     ls        lists all configured contexts and kubeconfigs
-    #     all       sets KUBECONFIG to all available configs (see 
+    #     all       sets KUBECONFIG to all available configs (see
     #               below KUBECONFIG SOURCES for details)
     #     -         Unsets KUBECONFIG
     #
@@ -237,7 +237,7 @@ if which kubectl &>/dev/null; then
     #       will be added as available kubeconfigs.
     #
     #   The user can manage their sources however they like. In general,
-    #   however, the suggested strategy is to maintain more static, or 
+    #   however, the suggested strategy is to maintain more static, or
     #   long-lived, cluster configs in the starnadard ~/kube/config file,
     #   while using ".kubeconfig" files for more dyrnamic clusters.
     #
@@ -245,7 +245,7 @@ if which kubectl &>/dev/null; then
     #   The 'kc' function supports standard bash auto completion, offering
     #   completion for all the kubernetes contexts available from the
     #   configured sources as described above.
-    # 
+    #
     function kc() {
 
         if [[ $# -gt 1 || ${1} == '-h' || ${1} == '--help' || ${1} == 'help' ]]; then
@@ -271,8 +271,8 @@ if which kubectl &>/dev/null; then
 
             echo '~/.kube/config:'
             if [ -n "${contexts}" ]; then
-                for c in $(echo $contexts | tr ' ' '\n' |sort); do 
-                    echo "    ${c}"; 
+                for c in $(echo $contexts | tr ' ' '\n' |sort); do
+                    echo "    ${c}";
                 done
             else
                 echo '    <none>'
@@ -280,8 +280,8 @@ if which kubectl &>/dev/null; then
 
             echo '~/.kube/*.kubeconfig:'
             if [ -n "${kubeconfigs}" ]; then
-                for k in $(echo $kubeconfigs | tr ' ' '\n' |sort); do 
-                    echo "    ${k}"; 
+                for k in $(echo $kubeconfigs | tr ' ' '\n' |sort); do
+                    echo "    ${k}";
                 done
             else
                 echo '    <none>'
@@ -347,7 +347,7 @@ if which kubectl &>/dev/null; then
         fi
 
           # echo "c:${completions[@]}"
-          if [ ${#completions[@]} -gt 0 ]; then 
+          if [ ${#completions[@]} -gt 0 ]; then
               COMPREPLY=($(compgen -W "${completions[*]}" -- "${COMP_WORDS[1]}"))
           fi
     }
@@ -408,16 +408,16 @@ _bash_history_sync() {
     # I've got a bug somewhere that's truncating my history file to 5000 lines.
     # Maybe this will help us find it.
     # TODO: Delete this.
-    if [ "$(wc -l ~/.bash_history |awk '{ print $1 }')" -le 5000 ]; then
-        echo ''
-        echo "$HISTFILE has been truncated to 5000 lines..."
-        sleep 60
-    fi
+    # if [ "$(wc -l ~/.bash_history |awk '{ print $1 }')" -le 5000 ]; then
+    #     echo ''
+    #     echo "$HISTFILE has been truncated to 5000 lines..."
+    #     sleep 60
+    # fi
 }
 
 # Even though we've specified 'erasedups' in HISTCONTROL, it doesn't work
 # becauase 'history -a' (which we're using to to append to the history file)
-# doesn't trigger erasing duplicates (not sure why). Calling this via the 
+# doesn't trigger erasing duplicates (not sure why). Calling this via the
 # EXIT trap below will force a dedup.
 # TODO: Make this a cronjob?
 function deduphistory {
@@ -470,15 +470,15 @@ hfg() {
 # If a brew installation of bash-git-prompt exits, well use that. If not...
 # We'll cobble together our own prompt that includes the following:
 #
-#   - timestamp 
+#   - timestamp
 #   - PWD
 #     - home directory (HOME) is replaced with a ~
 #     - last pwdmaxlen characters of the PWD are displayed
 #     - leading partial directory names replaced with ".." if path too long
-#   - username@host 
-#   
+#   - username@host
+#
 #   Note that this prompt is split across two lines. That's not really my
-#   preference, but long prompts seem to hose up command recall when using 
+#   preference, but long prompts seem to hose up command recall when using
 #   'set -o vi'.
 #
 
@@ -549,10 +549,10 @@ elif [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
 
 else
     bash_prompt_command() {
-    
+
         # How many characters of the $PWD should be kept?
         local pwdmaxlen=20
-    
+
         # Handle pwd display truncation if path is too long.
         local trunc_symbol=".."
         local dir=${PWD##*/}
@@ -563,24 +563,24 @@ else
             NEW_PWD=${NEW_PWD:$pwdoffset:$pwdmaxlen}
             NEW_PWD=${trunc_symbol}/${NEW_PWD#*/}
         fi
-    
+
         #
         # Write the hostname in the terminal's tab title. Putting this
         # here will allow us to get an update not just on login to a new
         # box, but on exiting back to a previous box as well.
         #
-    
+
         case $TERM in
             xterm*)
                 echo -en "\033];$(hostname -s)\007"
                 ;;
         esac
     }
-    
+
     bash_prompt() {
         local HOST=$(hostname)
         local NONE="\[$(tput sgr0)\]"
-    
+
         local K="\[$(tput setaf 0)\]"
         local R="\[$(tput setaf 1)\]"
         local G="\[$(tput setaf 2)\]"
@@ -589,7 +589,7 @@ else
         local M="\[$(tput setaf 5)\]"
         local C="\[$(tput setaf 6)\]"
         local W="\[$(tput setaf 7)\]"
-    
+
         local EMK="\[$(tput bold; tput setaf 0)\]"
         local EMR="\[$(tput bold; tput setaf 1)\]"
         local EMG="\[$(tput bold; tput setaf 2)\]"
@@ -598,7 +598,7 @@ else
         local EMM="\[$(tput bold; tput setaf 5)\]"
         local EMC="\[$(tput bold; tput setaf 6)\]"
         local EMW="\[$(tput bold; tput setaf 7)\]"
-    
+
         local BGK="\[$(tput setab 0)\]"
         local BGR="\[$(tput setab 1)\]"
         local BGG="\[$(tput setab 2)\]"
@@ -607,22 +607,22 @@ else
         local BGM="\[$(tput setab 5)\]"
         local BGC="\[$(tput setab 6)\]"
         local BGW="\[$(tput setab 7)\]"
-    
+
         local UC=$C                 # user's color
         [ $UID -eq "0" ] && UC=$R   # root's color
-    
+
         # History Search doesn't work in deep subdirs.
         #PS1="${Y}[${W}\t${Y}] [${UC}\u@\h${W}:${EMB}\${NEW_PWD}${NONE}${Y}] ${W}\$ ${NONE}"
-    
+
         # Works, but everything is bold beyond pwd.
         #PS1="${Y}[${W}\t${Y}] [${UC}\u@\h${W}:${EMB}\${NEW_PWD}${Y}] ${W}\$ ${NONE}"
-    
+
         # Works, but nothing (pwd nor anything else) is bold.
         #PS1="${Y}[${W}\t${Y}] [${UC}\u@\h${W}:${B}\${NEW_PWD}${Y}] ${W}\$ ${NONE}"
-    
+
         PS1="\n${Y}[${W}\t${Y}] [${B}\${NEW_PWD}${Y}]\n[${UC}\u@\h${Y}] ${W}\$ ${NONE}"
     }
-    
+
     if tty -s; then
       PROMPT_COMMAND="bash_prompt_command;$PROMPT_COMMAND"
       bash_prompt
@@ -634,18 +634,18 @@ fi
 
 # SSH Config Autocompletion {{{
 
-export COMP_WORDBREAKS=${COMP_WORDBREAKS/\:/}                                             
-                                                                                          
-_sshcomplete() {                                                                          
-    # parse all defined hosts from .ssh/config                                            
-    if [ -r $HOME/.ssh/config ]; then                                                     
+export COMP_WORDBREAKS=${COMP_WORDBREAKS/\:/}
+
+_sshcomplete() {
+    # parse all defined hosts from .ssh/config
+    if [ -r $HOME/.ssh/config ]; then
         COMPREPLY=($(compgen -W "$(grep ^Host $HOME/.ssh/config | awk '{print $2}' )" -- ${COMP_WORDS[COMP_CWORD]}))
-    fi                                                                                    
+    fi
 
-    return 0                                                                              
-}                                                                                         
+    return 0
+}
 
-complete -o default -o nospace -F _sshcomplete ssh  
+complete -o default -o nospace -F _sshcomplete ssh
 # }}}
 
 # Local Modifications {{{

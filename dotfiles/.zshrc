@@ -15,6 +15,81 @@
 # fi
 # }}}
 
+# General {{{
+
+#
+# In general, keep PATH mods up front in case others rely on them.
+#
+
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+if [ -d "/usr/local/sbin" ] ; then
+    PATH="/usr/local/sbin:$PATH"
+fi
+
+if [[ $OSTYPE == *darwin* ]]; then
+    if which brew &>/dev/null; then
+        fpath+="$(brew --prefix)/share/zsh/site-functions"
+
+        # We'll make sure that /usr/local/bin is first in our PATH to ensure our
+        # brew installed packages will take precedence.  Is there a better way to
+        # do this?
+        # path=$(echo $PATH \
+        #     |sed -E 's|^/usr/local/bin:||' \
+        #     |sed -E 's|:/usr/local/bin$||' \
+        #     |sed -E 's|:?/usr/local/bin:|:|' \
+        #     |sed -E 's|:/usr/local/bin:?|:|')
+        # PATH="/usr/local/bin:${path}"
+    fi
+fi
+
+#
+# A python app installed in a virtual env, for example...
+#
+#   $ source venv/bin/activate
+#   $ python3 setup.py install
+#
+# ... will have a script (at least one) at `venv/bin/<binary>`.
+# This will be an entirely self-contained script capable of
+# running within it's associated virtual environment. This
+# function will link that script so that it's on the path.
+#
+venv_script() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: venv_script <path_to_script>"
+        return
+    fi
+
+    script=${1}
+
+    if [ ! -f $script ]; then
+        echo "venv script '$script' not found"
+        return
+    fi
+
+    if [ ! -d "$HOME/bin" ]; then
+        echo "$HOME/bin does not exist"
+        return
+    fi
+
+    link=$HOME/bin/$(basename $script)
+
+    if [ -f $link ]; then
+        echo "$link already exists"
+        return
+    fi
+
+    ln -s $(realpath $script) $link
+    hash -r
+}
+
+export CLICOLOR=1
+export EDITOR=vim
+
+# }}}
+
 # Aliases {{{
 
 alias gw='./gradlew'
@@ -129,78 +204,31 @@ fi
 # some potential for strange behavior (e.g. starship prompt will disable any
 # widgets added to 'add-zle-hook-widget').
 
-# Must source this before calling 'compinit'.
-source ~/.zinit/bin/zi.zsh
+ZPLUGINDIR=$HOME/.zsh/plugins
 
-# Initialze completion.
+if [ -f "$ZPLUGINDIR/zsh_unplugged/zsh_unplugged.zsh" ]; then
+    source "$ZPLUGINDIR/zsh_unplugged/zsh_unplugged.zsh"
+
+    repos=(
+        zdharma-continuum/fast-syntax-highlighting
+        zsh-users/zsh-completions
+    )
+
+    plugin-load $repos
+
+    # Turn off syntax highlighting on paste.
+    zle_highlight=('paste:none')
+fi
+
+MY_SITE_FUNCTIONS=$HOME/.zsh/site-functions
+
+fpath=( $MY_SITE_FUNCTIONS "${fpath[@]}" )
+
+# Initialize completion.
 autoload -Uz compinit && compinit -u
-
-zinit light zdharma/fast-syntax-highlighting
-zle_highlight=('paste:none')
-
-zinit light zsh-users/zsh-completions
 
 # Unbind stupid default keymaps.
 bindkey -r '^L'   # clear screen
-
-# So I like the idea of this plugin, but it messes with vim mode (and my head).
-# I think if I just disabled it anytime we're in vicmd mode, that might make it
-# usable (which I tried and failed... see below).
-
-# zinit light zsh-users/zsh-autosuggestions
-# bindkey '^L' autosuggest-accept
-# bindkey '^X' autosuggest-clear
-#
-# # This sort of lets us scroll through autosuggestions.
-# bindkey '^K' history-beginning-search-backward
-# bindkey '^J' history-beginning-search-forward
-
-# Couldn't get this working. Note that the keymap_select widget _does_ do
-# what's expected, but something comes along later and redraws the command line
-# to show the suggestion again (even though we called 'autosuggest-disable').
-
-# autoload -Uz add-zle-hook-widget
-#
-# echo '' >/tmp/foo
-#
-# zle_autosuggest_line_init() {
-#     echo 'line_init' >>/tmp/foo
-#     echo "BUFFER:$BUFFER" >>/tmp/foo
-#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
-#     # zle autosuggest-enable
-# }
-#
-# zle_autosuggest_line_pre_redraw() {
-#     echo 'line_pre_redraw' >>/tmp/foo
-#     echo "BUFFER:$BUFFER" >>/tmp/foo
-#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
-# }
-#
-# zle_autosuggest_line_finish() {
-#     echo 'line_finish' >>/tmp/foo
-#     echo "BUFFER:$BUFFER" >>/tmp/foo
-#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
-# }
-#
-# zle_autosuggest_keymap_select() {
-#     echo 'keymap_select' >>/tmp/foo
-#     echo "BUFFER:$BUFFER" >>/tmp/foo
-#     echo "POSTDISPLAY:$POSTDISPLAY" >>/tmp/foo
-#     zle autosuggest-clear
-#     zle autosuggest-disable
-#     zle vi-kill-eol
-#     sleep 5
-# }
-#
-# # Whether we use this or add 'autosuggest-clear' to the widget, it no worky.
-# # ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=("zle_autosuggest_keymap_select")
-#
-# zle -N zle_autosuggest_line_init
-# zle -N zle_autosuggest_keymap_select
-# add-zle-hook-widget -Uz line-init zle_autosuggest_line_init
-# add-zle-hook-widget -Uz line-pre-redraw zle_autosuggest_line_pre_redraw
-# add-zle-hook-widget -Uz line-finish zle_autosuggest_line_finish
-# add-zle-hook-widget -Uz keymap-select zle_autosuggest_keymap_select
 
 zstyle ':completion:*' menu selectzmodload zsh/complist
 
@@ -277,10 +305,15 @@ if which asdf &>/dev/null; then
     # asdf as well. But I'm not. This will disable that stupid behavior.
     export ASDF_GROOVY_DISABLE_JAVA_HOME_EXPORT=true
 
-    source $(brew --prefix asdf)/libexec/asdf.sh
+    # Recent versions of asdf installed via homebrew seem to be broken.
+    # This should fix it for now. See here: 
+    #
+    #   https://github.com/asdf-vm/asdf/issues/785#issuecomment-2645900454
+    
+    # source $(brew --prefix asdf)/libexec/asdf.sh
+    export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
     function __asdf_complete() {
-
         local pluginName="${1}"
         shift
 
@@ -346,8 +379,8 @@ if which kubectl &>/dev/null; then
     function _asdf_complete_kubectl() {
 
         _asdf_complete() {
-            # NOTE: __start_kubectl comes from 'source <(kubectl completion zsh)'
-            __start_kubectl "${@}"
+            # NOTE: _kubectl comes from 'source <(kubectl completion zsh)'
+            _kubectl "${@}"
         }
 
         _asdf_load_completion() {
@@ -371,7 +404,7 @@ if which kubectl &>/dev/null; then
             # including the use of "complete ..." as I'm now using here.
             #
             
-            complete -F _asdf_complete_kubectl kubectl
+            compdef _asdf_complete_kubectl kubectl
         }
 
         __asdf_complete "kubectl" "${@}"
@@ -390,23 +423,22 @@ if which kubectl &>/dev/null; then
     if which kubectx &>/dev/null; then
     
         local ASDF_KUBECTX=$(asdf where kubectx)
-        local ZSH_FUNCTIONS=/usr/local/share/zsh/site-functions
         
         local reload_completions=false
 
-        if [ ! ${ASDF_KUBECTX}/completion/kubectx.zsh -ef ${ZSH_FUNCTIONS}/_kubectx.zsh ]; then
-            ln -sf ${ASDF_KUBECTX}/completion/kubectx.zsh ${ZSH_FUNCTIONS}/_kubectx.zsh 
+        if [ ! ${ASDF_KUBECTX}/completion/_kubectx.zsh -ef ${MY_SITE_FUNCTIONS}/_kubectx.zsh ]; then
+            ln -sf ${ASDF_KUBECTX}/completion/_kubectx.zsh ${MY_SITE_FUNCTIONS}/_kubectx.zsh 
             reload_completions=true
         fi
 
-        if [ ! ${ASDF_KUBECTX}/completion/kubens.zsh -ef ${ZSH_FUNCTIONS}/_kubens.zsh ]; then
-            ln -sf ${ASDF_KUBECTX}/completion/kubens.zsh ${ZSH_FUNCTIONS}/_kubens.zsh 
+        if [ ! ${ASDF_KUBECTX}/completion/_kubens.zsh -ef ${MY_SITE_FUNCTIONS}/_kubens.zsh ]; then
+            ln -sf ${ASDF_KUBECTX}/completion/_kubens.zsh ${MY_SITE_FUNCTIONS}/_kubens.zsh 
             reload_completions=true
         fi
 
-        # Calling compinit to load completions for a single completion file
-        # seems pretty heavyweight. If there is a better way, however, I
-        # haven't found it yet.
+    #     # Calling compinit to load completions for a single completion file
+    #     # seems pretty heavyweight. If there is a better way, however, I
+    #     # haven't found it yet.
         [ "${reload_completions}" == true ] && compinit
 
         alias kx='kubectx'
@@ -454,10 +486,10 @@ if which kubectl &>/dev/null; then
     #   The user can manage their sources however they like. In general,
     #   however, the suggested strategy is to maintain more static, or 
     #   long-lived, cluster configs in the starnadard ~/kube/config file,
-    #   while using ".kubeconfig" files for more dyrnamic clusters.
+    #   while using ".kubeconfig" files for more dynamic clusters.
     #
     # BASH COMPLETION
-    #   The 'kc' function supports standard bash auto completion, offering
+    #   The 'kc' function supports standard zsh auto completion, offering
     #   completion for all the kubernetes contexts available from the
     #   configured sources as described above.
     # 
@@ -548,24 +580,19 @@ if which kubectl &>/dev/null; then
     }
 
     function __kc_kubeconfigs() {
-        echo $(ls -1 ~/.kube/*.kubeconfig 2>/dev/null |xargs -n1 -I{} basename "{}")
+        # Used to use the 'ls -1 ...' command here, but noticed that if there
+        # were no '*.kubeconfig' files in '~/.kube' the completsions would
+        # include all the files in the current working directory. For some
+        # reason using 'find ...' doesn't do the same. Weird.
+        # echo $(ls -1 ~/.kube/*.kubeconfig 2>/dev/null |xargs -n1 -I{} basename "{}")
+        echo $(find ~/.kube -maxdepth 1 -name '*.kubeconfig' |xargs -n1 -I{} basename "{}")
     }
 
     _kc() {
-        # TODO: Is there a reason to do all of this as opposed to what's below?
-        # local contexts kubeconfigs 
-        # local -a completions
-        #
-        # if contexts=$(__kc_configcontexts); then
-        #     completions=("${contexts[*]}")
-        # fi
-        #
-        # if kubeconfigs=$(__kc_kubeconfigs); then
-        #     completions+=("${kubeconfigs[*]}")
-        # fi
-        # compadd $(echo $completions)
-
         compadd $(__kc_configcontexts) $(__kc_kubeconfigs)
+
+        # This also works in place of the above 'compadd ...'.
+        # _arguments '*: :($(__kc_configcontexts) $(__kc_kubeconfigs))'
     }
 
     compdef _kc kc

@@ -17,6 +17,9 @@ disabled = true
 [directory]
 style = "bold green"
 
+[docker_context]
+disabled = true
+
 [dotnet]
 disabled = true
 

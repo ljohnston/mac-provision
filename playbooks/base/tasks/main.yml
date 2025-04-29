@@ -23,35 +23,9 @@
     name: 'fzf'
     state: 'latest'
 
-- name: 'install jq'
-  homebrew:
-    name: 'jq'
-    state: 'latest'
-
 - name: 'install ripgrep'
   homebrew:
     name: 'ripgrep'
-    state: 'latest'
-
-- name: 'install the_silver_searcher'
-  homebrew:
-    name: 'the_silver_searcher'
-    state: 'latest'
-
-- name: 'install yq'
-  homebrew:
-    name: 'yq'
-    state: 'latest'
-
-# Font installs need this. Really?
-# - name: 'install svn'
-#   homebrew:
-#     name: 'svn'
-#     state: 'latest'
-
-- name: 'install wget'
-  homebrew:
-    name: 'wget'
     state: 'latest'
 
 #
@@ -64,9 +38,11 @@
     state: 'latest'
 
 #
-# Shells
+# Bash
 #
 
+# The bash version installed with OS X is ancient (due to licensing changes in
+# more recent versions). We'll install a newer one.
 - name: 'install bash'
   homebrew:
     name: 'bash'
@@ -104,24 +80,6 @@
 # feature (for those that auto update).
 #
 
-- name: 'install docker'
-  homebrew_cask:
-    name: 'docker'
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install firefox'
-  homebrew_cask:
-    name: 'firefox'
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install google-chrome'
-  homebrew_cask:
-    name: 'google-chrome'
-    state: 'present'
-    accept_external_apps: 'yes'
-
 - name: 'install iterm2'
   homebrew_cask:
     name: 'iterm2'
@@ -143,18 +101,6 @@
 - name: 'install macvim'
   homebrew_cask:
     name: 'macvim'
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install vagrant'
-  homebrew_cask:
-    name: 'vagrant'
-    state: 'present'
-    accept_external_apps: 'yes'
-
-- name: 'install virtualbox'
-  homebrew_cask:
-    name: 'virtualbox'
     state: 'present'
     accept_external_apps: 'yes'
 
@@ -211,6 +157,27 @@
     src: '{{ playbook_dir }}/../dotfiles/.zshrc'
     dest: '~/.zshrc'
     state: 'link'
+
+#
+# zsh
+#
+
+- name: 'create ~/.zsh'
+  file:
+    path: '{{ item }}'
+    state: 'directory'
+  loop:
+    - '~/.zsh'
+    - '~/.zsh/plugins'
+    - '~/.zsh/site-functions'
+
+- name: 'install zsh_unplugged'
+  ansible.builtin.git:
+    repo: 'https://github.com/mattmc3/zsh_unplugged.git'
+    dest: '~/.zsh/plugins/zsh_unplugged'
+  tags:
+    - 'iterm-config'
+
 
 #
 # .ssh config
@@ -304,14 +271,14 @@
 
 - name: 'create ~/.config/karabiner'
   file:
-    path: '~/.config'
+    path: '~/.config/karabiner'
     state: 'directory'
     mode: '0700'
 
 - name: 'karabiner.json symlink'
   file:
     src: '{{ playbook_dir }}/../config/karabiner.json'
-    dest: '~/.config/karabiner.json'
+    dest: '~/.config/karabiner/karabiner.json'
     state: 'link'
 
 #

@@ -1,6 +1,12 @@
 # Modeline & Notes {{{
 # vim: set sw=4 ts=4 sts=4 et tw=79 foldlevel=0 foldmethod=marker foldmarker={{{,}}}:
-#
+
+if [ -x "/usr/local/bin/brew" ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+elif [ -x "/opt/homebrew/bin/brew" ] ; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 # }}}
 
 #
@@ -51,5 +57,5 @@ export EDITOR=vim
 
 
 # Local Config {{{
-# [[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
+[[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
 # }}}

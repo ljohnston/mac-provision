@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+type git >/dev/null 2>&1 || { echo >&2 "'git' not installed. Aborting..."; exit 1; }
+
 if [[ ! -x /usr/local/bin/brew && ! -x /opt/homebrew/bin/brew ]]; then
     echo "installing homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"

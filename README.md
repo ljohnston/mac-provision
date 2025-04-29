@@ -42,7 +42,7 @@ update the iTerm preference needed to read/write the config file.
   iTerm > Settings > General > Settings
     - Check "Load preferences from a custom folder or URL"
     - Enter path as "~/.iterm"
-    - Check "Save changes to folder when iTerm2 quits"
+    - Save changes: When Quitting
 
 Keyboard shortcuts
 
@@ -71,13 +71,24 @@ like, described here.
 
 #### Vivaldi
 
-- disable password manager
-- home page: google.com
-- startup with: homepage
-- new session: open homepage
-- new tabs: open homepage
-- new tab position: after active tab
-- downloads: don't open panel automatically
+- Settings / General...
+    - set Vivaldi as default browser
+    - Homepage / Specific Page: google.com
+    - Startup: Homepage
+- Settings / Tabs...
+    - New Tab Page: Homepage
+- Settings / Downloads...
+    - Uncheck "Display Downloads Automatically"
+- Settings / Privacy & Security / Passwords: uncheck "Save Webpage Passwords"
+- View / Customize Toolbar
+    - Update as desired
+
+## Maccy
+
+- Open App / Preferences / General...
+    - Launch at login
+    - Check for updates automatically
+    - Open: Ctrl-Cmd-\
 
 ## UPDATES
 
