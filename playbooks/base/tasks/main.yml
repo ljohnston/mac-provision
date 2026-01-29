@@ -10,30 +10,60 @@
 #
 
 # Do a brew update.
-- homebrew:
+- community.general.homebrew:
     update_homebrew: 'yes'
 
 - name: 'install asdf'
-  homebrew:
+  community.general.homebrew:
     name: 'asdf'
     state: 'present'
 
 - name: 'install fzf'
-  homebrew:
+  community.general.homebrew:
     name: 'fzf'
     state: 'latest'
 
+- name: 'install jq'
+  community.general.homebrew:
+    name: 'jq'
+    state: 'latest'
+
 - name: 'install ripgrep'
-  homebrew:
+  community.general.homebrew:
     name: 'ripgrep'
     state: 'latest'
+
+- name: 'install the_silver_searcher'
+  community.general.homebrew:
+    name: 'the_silver_searcher'
+    state: 'latest'
+
+- name: 'install yq'
+  community.general.homebrew:
+    name: 'yq'
+    state: 'latest'
+
+# Font installs need this. Really?
+# - name: 'install svn'
+#   homebrew:
+#     name: 'svn'
+#     state: 'latest'
+
+- name: 'install wget'
+  community.general.homebrew:
+    name: 'wget'
+    state: 'latest'
+
+- name: 'install hashicorp/tap homebrew tap'
+  community.general.homebrew_tap:
+    name: 'hashicorp/tap'
 
 #
 # Prompts
 #
 
 - name: 'install starship'
-  homebrew:
+  community.general.homebrew:
     name: 'starship'
     state: 'latest'
 
@@ -44,14 +74,14 @@
 # The bash version installed with OS X is ancient (due to licensing changes in
 # more recent versions). We'll install a newer one.
 - name: 'install bash'
-  homebrew:
+  community.general.homebrew:
     name: 'bash'
     state: 'latest'
 
 - name: 'install zinit'
   git:
-    repo: 'https://github.com/zdharma/zinit.git'
-    dest: '~/.zinit/bin'
+    repo: 'https://github.com/zdharma-continuum/zinit.git'
+    dest: '~/.zinit'
 
 #
 # The "environment:" stuff here kind of a hack. Seems ansible passes the
@@ -80,32 +110,70 @@
 # feature (for those that auto update).
 #
 
+- name: 'install docker'
+  community.general.homebrew_cask:
+    name: 'docker'
+    state: 'present'
+    accept_external_apps: 'yes'
+
+- name: 'install firefox'
+  community.general.homebrew_cask:
+    name: 'firefox'
+    state: 'present'
+    accept_external_apps: 'yes'
+
+- name: 'install google-chrome'
+  community.general.homebrew_cask:
+    name: 'google-chrome'
+    state: 'present'
+    accept_external_apps: 'yes'
+
 - name: 'install iterm2'
-  homebrew_cask:
+  community.general.homebrew_cask:
     name: 'iterm2'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install karabiner-elements'
-  homebrew_cask:
+  community.general.homebrew_cask:
     name: 'karabiner-elements'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install maccy'
-  homebrew_cask:
+  community.general.homebrew_cask:
     name: 'maccy'
     state: 'present'
     accept_external_apps: 'yes'
 
 - name: 'install macvim'
-  homebrew_cask:
+  community.general.homebrew_cask:
     name: 'macvim'
     state: 'present'
     accept_external_apps: 'yes'
 
+- name: 'install vagrant'
+  community.general.homebrew_cask:
+    name: 'vagrant'
+    state: 'present'
+    accept_external_apps: 'yes'
+
+# - name: 'install virtualbox'
+#   homebrew_cask:
+#     name: 'virtualbox'
+#     state: 'present'
+#     accept_external_apps: 'yes'
+#   become: true
+#   become_method: 'sudo'
+
+# - name: 'install virtualbox'
+#   community.general.homebrew_cask:
+#     name: 'virtualbox'
+#     state: 'present'
+#   become: true
+
 - name: 'install vivaldi'
-  homebrew_cask:
+  community.general.homebrew_cask:
     name: 'vivaldi'
     state: 'present'
     accept_external_apps: 'yes'
@@ -115,12 +183,12 @@
 #
 
 - name: 'install source-code-pro-for-powerline font'
-  homebrew_cask:
+  community.general.homebrew_cask:
     name: 'font-source-code-pro-for-powerline'
     state: 'latest'
 
 - name: 'install font-sauce-code-pro-nerd-font'
-  homebrew_cask:
+  community.general.homebrew_cask:
     name: 'font-sauce-code-pro-nerd-font'
     state: 'latest'
 
@@ -205,6 +273,8 @@
   ansible.builtin.git:
     repo: 'https://github.com/mbadolato/iTerm2-Color-Schemes.git'
     dest: '~/.iterm-color-schemes'
+    depth: 1
+    force: true
   tags:
     - 'iterm-config'
 
@@ -287,7 +357,8 @@
 
 - name: 'install vim config'
   git:
-    repo: 'https://github.com/ljohnston/vim.git'
+    # repo: 'https://gitlab.com/johnston.lance/vim.git'
+    repo: 'git@github.com:ljohnston/mac-provision.git'
     dest: '~/.vim'
 
 - name: 'configure vim'
@@ -297,6 +368,6 @@
 
 - name: 'vimwiki symlink'
   file:
-    src: '~/Google Drive/vimwiki'
+    src: '~/Documents/GoogleDrive/vimwiki'
     dest: '~/vimwiki'
     state: 'link'

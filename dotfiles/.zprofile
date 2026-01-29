@@ -41,20 +41,23 @@ fi
 
 # PATH {{{
 
-if [ -d "$HOME/bin" ] ; then
+if [ -d "$HOME/bin" ]; then
     PATH="$HOME/bin:$PATH"
 fi
 
-if [ -d "/usr/local/sbin" ] ; then
+if [ -d "/usr/local/sbin" ]; then
     PATH="/usr/local/sbin:$PATH"
 fi
 
+# This for pipx.
+if [ -d "$HOME/.local/bin" ]; then
+    PATH="$PATH:$HOME/.local/bin"
+fi
 
 export CLICOLOR=1
 export EDITOR=vim
 
 # }}}
-
 
 # Local Config {{{
 [[ -f ~/.zprofile.local ]] && source ~/.zprofile.local

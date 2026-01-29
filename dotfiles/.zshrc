@@ -206,6 +206,9 @@ fi
 
 ZPLUGINDIR=$HOME/.zsh/plugins
 
+# Must source this before calling 'compinit'.
+source ~/.zinit/zinit.zsh
+
 if [ -f "$ZPLUGINDIR/zsh_unplugged/zsh_unplugged.zsh" ]; then
     source "$ZPLUGINDIR/zsh_unplugged/zsh_unplugged.zsh"
 
@@ -226,6 +229,11 @@ fpath=( $MY_SITE_FUNCTIONS "${fpath[@]}" )
 
 # Initialize completion.
 autoload -Uz compinit && compinit -u
+
+zinit light zdharma-continuum/fast-syntax-highlighting
+zle_highlight=('paste:none')
+
+zinit light zsh-users/zsh-completions
 
 # Unbind stupid default keymaps.
 bindkey -r '^L'   # clear screen
@@ -333,6 +341,11 @@ if which asdf &>/dev/null; then
     }
 fi
 
+# Homebrew make requires a path update.
+if [ -x /opt/homebrew/opt/make/libexec/gnubin/make ]; then
+    PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
+fi
+
 # Helm
 which helm &>/dev/null && source <(helm completion zsh)
 
@@ -366,9 +379,11 @@ if which fzf &>/dev/null; then
     bindkey '^_' _fzf_history_file
 
 fi
+
+
 # }}}
 
-# Kubernetes Tooling {{{
+# Kubernetes {{{
 
 if which kubectl &>/dev/null; then
 
@@ -596,6 +611,18 @@ if which kubectl &>/dev/null; then
     }
 
     compdef _kc kc
+fi
+
+# }}}
+
+# Terraform {{{
+
+if which terraform &>/dev/null; then
+    function tf() {
+        if [[ -f ./tf.sh ]]; then ./tf.sh "$@"
+        else terraform "$@"
+        fi
+    }
 fi
 
 # }}}

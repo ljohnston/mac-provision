@@ -10,12 +10,12 @@ else
 fi
 
 if [ -x /usr/local/bin/brew ]; then
-    BREW=/usr/local/bin/brew
+    BREW_PREFIX=/usr/local
 else
-    BREW=/opt/homebrew/bin/brew
+    BREW_PREFIX=/opt/homebrew
 fi
 
-if [ ! -x /usr/local/bin/ansible ]; then
+if [ ! -x ${BREW_PREFIX}/bin/ansible ]; then
     echo "installing ansible via homebrew"
     $BREW install ansible
 else
